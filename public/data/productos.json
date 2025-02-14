@@ -1,0 +1,8 @@
+[
+       { "id": 1, "nombre": "Hamburguesa Especial", "descripcion": "Carne 100% vacuna con queso cheddar, lechuga y tomate.", "precio": 1200, "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg", "ingredientes": ["Mayonesa", "Queso", "Lechuga", "Tomate"] },
+       { "id": 2, "nombre": "Lomo Completo", "descripcion": "Delicioso lomo con jamón, queso, huevo y verduras frescas.", "precio": 1500, "imagen": "https://i.ibb.co/Ld51tNj4/lomo.jpg", "ingredientes": ["Mayonesa", "Jamón", "Queso", "Huevo"] }
+     ]
+
+     
+     
+  

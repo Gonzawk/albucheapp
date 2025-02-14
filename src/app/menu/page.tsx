@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { Producto } from '../../types/product';
-import { getProductos } from '../../lib/API/api';
-import ProductCard from '../../src/app/components/ProductCard';
+import { Producto } from '../../../types/product';
+import { getProductos } from '../../../lib/API/api';
+import ProductCard from '../components/ProductCard';
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -23,6 +23,7 @@ export default function Home() {
             <ProductCard key={producto.id} producto={producto} />
           ))}
         </div>
+        
       </main>
       <footer className="bg-gray-800 text-white text-center p-6 mt-8 text-lg">
         &copy; 2024 Rostisería - Todos los derechos reservados.
