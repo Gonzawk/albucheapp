@@ -1,23 +1,10 @@
 "use client";
 import Image from 'next/image';
 import Navbar from '../components/Navbar';
-import { useEffect, useState } from 'react';
+import { useImage } from '../context/ImageContext';
 
 export default function Contacto() {
-  const [imagenPortada, setImagenPortada] = useState("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
-
-  useEffect(() => {
-    const actualizarImagen = () => {
-      if (window.innerWidth >= 768) {
-        setImagenPortada("https://i.ibb.co/RkrHd3dS/Albucheportadaweb.jpg");
-      } else {
-        setImagenPortada("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
-      }
-    };
-    actualizarImagen();
-    window.addEventListener("resize", actualizarImagen);
-    return () => window.removeEventListener("resize", actualizarImagen);
-  }, []);
+  const { imagenPortada } = useImage();
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col relative">

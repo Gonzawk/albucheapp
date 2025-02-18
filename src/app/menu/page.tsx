@@ -5,28 +5,16 @@ import { getProductos } from '../../../lib/API/api';
 import ProductCard from '../components/ProductCard';
 import Image from 'next/image';
 import Navbar from '../components/Navbar';
+import { useImage } from '../../app/context/ImageContext';
 
 export default function Menu() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
   const [personalizando, setPersonalizando] = useState(false);
-  const [imagenPortada, setImagenPortada] = useState("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
+  const { imagenPortada } = useImage();
 
   useEffect(() => {
     getProductos().then(setProductos);
-  }, []);
-
-  useEffect(() => {
-    const actualizarImagen = () => {
-      if (window.innerWidth >= 768) {
-        setImagenPortada("https://i.ibb.co/RkrHd3dS/Albucheportadaweb.jpg");
-      } else {
-        setImagenPortada("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
-      }
-    };
-    actualizarImagen();
-    window.addEventListener("resize", actualizarImagen);
-    return () => window.removeEventListener("resize", actualizarImagen);
   }, []);
 
   const categorias = [
@@ -56,7 +44,6 @@ export default function Menu() {
       )}
       <main className="p-6 max-w-6xl mx-auto flex-grow">
         <h1 className="text-4xl font-bold text-center mb-8">Nuestro Menú</h1>
-        
         
         {/* Selección de Categorías */}
         {categoriaSeleccionada === null ? (

@@ -2,23 +2,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '../../src/app/components/Navbar';
-import { useEffect, useState } from 'react';
+import { useImage } from '../app/context/ImageContext';
 
 export default function Inicio() {
-  const [imagenPortada, setImagenPortada] = useState("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
-
-  useEffect(() => {
-    const actualizarImagen = () => {
-      if (window.innerWidth >= 768) {
-        setImagenPortada("https://i.ibb.co/RkrHd3dS/Albucheportadaweb.jpg");
-      } else {
-        setImagenPortada("https://i.ibb.co/q3BRdshT/Albucheportada.jpg");
-      }
-    };
-    actualizarImagen();
-    window.addEventListener("resize", actualizarImagen);
-    return () => window.removeEventListener("resize", actualizarImagen);
-  }, []);
+  const { imagenPortada } = useImage();
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col relative">
@@ -40,7 +27,7 @@ export default function Inicio() {
       <main className="p-6 max-w-6xl mx-auto flex flex-col items-center text-center flex-grow">
         <h1 className="text-5xl font-bold mb-6">Bienvenidos</h1>
         <p className="text-lg text-gray-700 max-w-2xl mb-8">
-          Disfruta de los sabores más irresistibles, con ingredientes frescos y de calidad. Pedi tu hamburguesa favorita ahora!.
+          Disfruta de los sabores más irresistibles, con ingredientes frescos y de calidad. Pide tu hamburguesa favorita ahora!.
         </p>
        
         <Image 
