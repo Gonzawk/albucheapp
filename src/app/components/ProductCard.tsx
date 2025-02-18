@@ -36,22 +36,24 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       .filter(([_, incluido]) => !incluido)
       .map(([ing]) => ing);
     
-    let mensaje = `Hola! Quiero pedir una *${producto.nombre}*`;
+    let mensaje = `Pedido de *${producto.nombre}*\n\n`;
+    mensaje += `Precio: $${producto.precio}\n`;
     if (ingredientesSeleccionados.length > 0) {
-      mensaje += ` con: ${ingredientesSeleccionados.join(", ")}.`;
+      mensaje += `Ingredientes: ${ingredientesSeleccionados.join(", ")}\n`;
     }
     if (ingredientesEliminados.length > 0) {
-      mensaje += ` Sin: ${ingredientesEliminados.join(", ")}.`;
+      mensaje += `Sin: ${ingredientesEliminados.join(", ")}\n`;
     }
     if (delivery && direccion.trim() !== "") {
-      mensaje += ` Enviar a: ${direccion}.`;
+      mensaje += `Delivery a: ${direccion}\n`;
     }
+    mensaje += "\nPor favor, confirma mi pedido. Gracias!";
     
-    const numeroTelefono = "+543832400230"; // Reemplaza con el número correcto
+    const numeroTelefono = "+543513030145"; // Reemplaza con el número correcto
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
   };
-
+  
   return (
     <div className="bg-white p-6 shadow-lg rounded-lg text-center relative w-80 min-h-[450px] flex flex-col justify-between">
       <div className="w-full h-48 flex justify-center items-center overflow-hidden">

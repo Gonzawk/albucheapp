@@ -1,30 +1,30 @@
 [
   {
     "id": 1,
-    "nombre": "Hamburguesa Simple",
-    "descripcion": "Pan, Carne 100% vacuna, aderezos, queso a eleccion y papas fritas.",
+    "nombre": "Hamburguesa Bacon Simple",
+    "descripcion": "Pan, Carne 100% vacuna, aderezos,bacon, queso a eleccion y papas fritas.",
     "precio": 6000,
     "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Bacon","Queso" ]
   },
   {
     "id": 2,
-    "nombre": "Hamburguesa Doble",
-    "descripcion": "Pan, Doble Carne 100% vacuna, aderezos, doble queso a eleccion y papas fritas",
+    "nombre": "Hamburguesa de la Casa Doble",
+    "descripcion": "Pan, Doble Carne 100% vacuna, aderezos, salsa picante, salsa de la casa, doble queso a eleccion y papas fritas",
     "precio": 7000,
     "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Picante", "Salsa de la Casa", "Queso"]
   },
   {
     "id": 3,
-    "nombre": "Hamburguesa Triple",
-    "descripcion": "Pan, Triple Carne 100% vacuna, aderezos, triple queso a eleccion y papas fritas",
+    "nombre": "Hamburguesa Cheddar Triple",
+    "descripcion": "Pan, Triple Carne 100% vacuna, aderezos, panceta, salsa de la casa, salsa picante y triple queso a eleccion y papas fritas",
     "precio": 8200,
     "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Panceta", "Salsa de la Casa", "Salsa Picante","Queso"]
   },
   {
     "id": 4,
