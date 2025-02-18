@@ -47,7 +47,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       mensaje += ` Enviar a: ${direccion}.`;
     }
     
-    const numeroTelefono = "+543515552099"; // Reemplaza con el número correcto
+    const numeroTelefono = "+543832400230"; // Reemplaza con el número correcto
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
   };
