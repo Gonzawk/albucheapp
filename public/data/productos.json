@@ -1,8 +1,64 @@
 [
-       { "id": 1, "nombre": "Hamburguesa Especial", "descripcion": "Carne 100% vacuna con queso cheddar, lechuga y tomate.", "precio": 1200, "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg", "ingredientes": ["Mayonesa", "Queso", "Lechuga", "Tomate"] },
-       { "id": 2, "nombre": "Lomo Completo", "descripcion": "Delicioso lomo con jamón, queso, huevo y verduras frescas.", "precio": 1500, "imagen": "https://i.ibb.co/Ld51tNj4/lomo.jpg", "ingredientes": ["Mayonesa", "Jamón", "Queso", "Huevo"] }
-     ]
+  {
+    "id": 1,
+    "nombre": "Hamburguesa Simple",
+    "descripcion": "Pan, Carne 100% vacuna, aderezos, queso a eleccion y papas fritas.",
+    "precio": 6000,
+    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "categoria": "hamburguesa",
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+  },
+  {
+    "id": 2,
+    "nombre": "Hamburguesa Doble",
+    "descripcion": "Pan, Doble Carne 100% vacuna, aderezos, doble queso a eleccion y papas fritas",
+    "precio": 7000,
+    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "categoria": "hamburguesa",
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+  },
+  {
+    "id": 3,
+    "nombre": "Hamburguesa Triple",
+    "descripcion": "Pan, Triple Carne 100% vacuna, aderezos, triple queso a eleccion y papas fritas",
+    "precio": 8200,
+    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "categoria": "hamburguesa",
+    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Queso"]
+  },
+  {
+    "id": 4,
+    "nombre": "Lomo Completo",
+    "descripcion": "Delicioso lomo con jamón, queso, huevo y verduras frescas.",
+    "precio": 1500,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Sandwiches",
+    "ingredientes": ["Mayonesa", "Jamón", "Queso", "Huevo"]
+  },
+  {
+    "id": 5,
+    "nombre": "Lomo Simple",
+    "descripcion": "Delicioso lomo con huevo y verduras frescas.",
+    "precio": 1500,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Sandwiches",
+    "ingredientes": ["Mayonesa", "Huevo"]
+  },
+  {
+    "id": 6,
+    "nombre": "Tostado",
+    "descripcion": "Delicioso lomo con huevo y verduras frescas.",
+    "precio": 1500,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Sandwiches",
+    "ingredientes": ["Mayonesa", "Huevo"]
+  }
+]
 
      
      
   
+
+     
+
+    
