@@ -20,8 +20,11 @@ export default function Inicio() {
   }, []);
 
   const categorias = [
-    { nombre: "Hamburguesas", key: "hamburguesa", imagen: "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg" },
-    { nombre: "Sandwiches", key: "Sandwiches", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" }
+    { nombre: "Promociones", key: "promociones", imagen: "https://i.ibb.co/Nd2gTxFr/3.png" },
+    { nombre: "Hamburguesas", key: "hamburguesa", imagen: "https://i.ibb.co/TqHL0pP2/Fondo.jpg" },
+    { nombre: "Sandwiches", key: "Sandwiches", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" },
+    { nombre: "Para acompañar", key: "Para acompañar", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" },
+    
   ];
 
   const productosFiltrados = categoriaSeleccionada ? productos.filter(p => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()) : [];

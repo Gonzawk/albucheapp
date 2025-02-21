@@ -5,16 +5,16 @@ import { Producto } from "../../../types/product";
 import { motion } from "framer-motion";
 import toppingsData from "../../../public/data/toppings.json";
 
-interface ProductCardProps {
+interface ProductCard1Props {
   producto: Producto;
   setPersonalizando: (value: boolean) => void;
+  numeroMesa: string; // Se recibe el número de mesa como prop
 }
 
-export default function ProductCard({ producto, setPersonalizando }: ProductCardProps) {
+export default function ProductCard1({ producto, setPersonalizando, numeroMesa }: ProductCard1Props) {
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const [toppingsGlobales, setToppingsGlobales] = useState<Record<string, number>>({});
   const [precioTotal, setPrecioTotal] = useState(producto.precio);
-  const [metodoEntrega, setMetodoEntrega] = useState<"retiro" | "delivery" | null>(null);
 
   useEffect(() => {
     setToppingsGlobales(toppingsData);
@@ -30,12 +30,6 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
   );
 
   const [seleccionesToppings, setSeleccionesToppings] = useState<Record<string, boolean>>({});
-
-  // Datos para dirección en caso de Delivery
-  const [calle, setCalle] = useState("");
-  const [numero, setNumero] = useState("");
-  const [piso, setPiso] = useState("");
-  const [departamento, setDepartamento] = useState("");
 
   const toggleTopping = (topping: string) => {
     setSeleccionesToppings((prev) => {
@@ -69,7 +63,8 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       .filter(([_, incluido]) => incluido)
       .map(([topping]) => topping);
 
-    let mensaje = `🍔 *Pedido de ${producto.nombre}* 🍔\n\n`;
+    let mensaje = `📌 *PEDIDO EN EL LOCAL - MESA ${numeroMesa}*\n\n`;
+    mensaje += `🍔 *Pedido de ${producto.nombre}* 🍔\n\n`;
     mensaje += `💰 *Precio Total:* $${precioTotal}\n\n`;
 
     if (aderezosSeleccionados.length > 0) {
@@ -77,17 +72,6 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
     }
     if (toppingsSeleccionados.length > 0) {
       mensaje += `🧀 *Toppings (extra):* ${toppingsSeleccionados.join(", ")}\n`;
-    }
-
-    // Entrega
-    mensaje += `🚚 *Entrega:* ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
-
-    if (metodoEntrega === "delivery") {
-      mensaje += `📍 *Dirección:*\n`;
-      mensaje += `🏠 Calle: ${calle}\n`;
-      mensaje += `🔢 Número: ${numero}\n`;
-      if (piso.trim()) mensaje += `📏 Piso: ${piso}\n`;
-      if (departamento.trim()) mensaje += `🚪 Departamento: ${departamento}\n`;
     }
 
     mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
@@ -156,27 +140,8 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
 
             <p className="text-lg font-bold mt-4">Total: ${precioTotal}</p>
 
-            {/* Método de Entrega */}
-            <div className="mt-4 flex justify-center gap-4">
-              <button className={`px-4 py-2 rounded ${metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`} onClick={() => setMetodoEntrega("retiro")}>
-                Retiro en el Local
-              </button>
-              <button className={`px-4 py-2 rounded ${metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`} onClick={() => setMetodoEntrega("delivery")}>
-                Delivery
-              </button>
-            </div>
-
-            {metodoEntrega === "delivery" && (
-              <>
-                <input type="text" placeholder="Calle" value={calle} onChange={(e) => setCalle(e.target.value)} className="w-full p-2 border rounded mt-2" />
-                <input type="text" placeholder="Número" value={numero} onChange={(e) => setNumero(e.target.value)} className="w-full p-2 border rounded mt-2" />
-                <input type="text" placeholder="Piso" value={piso} onChange={(e) => setPiso(e.target.value)} className="w-full p-2 border rounded mt-2" />
-                <input type="text" placeholder="Departamento" value={departamento} onChange={(e) => setDepartamento(e.target.value)} className="w-full p-2 border rounded mt-2" />
-              </>
-            )}
-
             <button onClick={generarPedido} className="mt-4 bg-green-500 text-white px-4 py-2 rounded w-full">
-              Pedir por WhatsApp
+              Realizar Pedido
             </button>
             <button
               onClick={() => {

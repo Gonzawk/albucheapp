@@ -1,43 +1,43 @@
 [
   {
     "id": 1,
-    "nombre": "Hamburguesa Bacon Simple",
-    "descripcion": "Pan, Carne 100% vacuna, aderezos,bacon, queso a eleccion y papas fritas.",
+    "nombre": "Hamburguesa Simple",
+    "descripcion": "Pan, aderezos, Carne 100% vacuna, queso a eleccion y papas fritas.",
     "precio": 6000,
-    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "imagen": "https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Bacon","Queso" ]
+    "aderezos": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 2,
-    "nombre": "Hamburguesa de la Casa Doble",
-    "descripcion": "Pan, Doble Carne 100% vacuna, aderezos, salsa picante, salsa de la casa, doble queso a eleccion y papas fritas",
+    "nombre": "Hamburguesa Doble",
+    "descripcion": "Pan, aderezos, doble Carne 100% vacuna, doble queso a eleccion y papas fritas.",
     "precio": 7000,
-    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "imagen": "https://i.ibb.co/67wq8cqC/doble.png",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Picante", "Salsa de la Casa", "Queso"]
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 3,
-    "nombre": "Hamburguesa Cheddar Triple",
-    "descripcion": "Pan, Triple Carne 100% vacuna, aderezos, panceta, salsa de la casa, salsa picante y triple queso a eleccion y papas fritas",
+    "nombre": "Hamburguesa Triple",
+    "descripcion": "Pan, aderezos, triple Carne 100% vacuna, triple queso a eleccion y papas fritas.",
     "precio": 8200,
-    "imagen": "https://i.ibb.co/yn9pnZFM/Hamburguesa.jpg",
+    "imagen": "https://i.ibb.co/yBSCdHJK/triple.png",
     "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa", "Savora", "Ketchup", "Panceta", "Salsa de la Casa", "Salsa Picante","Queso"]
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 4,
-    "nombre": "Lomo Completo",
-    "descripcion": "Delicioso lomo con jamón, queso, huevo y verduras frescas.",
+    "nombre": "Hamburguesa Veggie",
+    "descripcion": "Pan, aderezos, medallon 100% veggie, queso a eleccion y papas fritas.",
     "precio": 1500,
-    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
-    "categoria": "Sandwiches",
-    "ingredientes": ["Mayonesa", "Jamón", "Queso", "Huevo"]
+    "imagen":"https://i.ibb.co/6JB4sVXp/veggie.png",
+    "categoria": "hamburguesa",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 5,
-    "nombre": "Lomo Simple",
+    "nombre": "Vegetariano",
     "descripcion": "Delicioso lomo con huevo y verduras frescas.",
     "precio": 1500,
     "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
@@ -52,6 +52,15 @@
     "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
     "categoria": "Sandwiches",
     "ingredientes": ["Mayonesa", "Huevo"]
+  },
+  {
+    "id": 7,
+    "nombre": "Simple + 2 Toppings",
+    "descripcion": "Hamburguesa simple + 2 toppings a eleccion",
+    "precio": 6700,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
   }
 ]
 

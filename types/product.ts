@@ -5,5 +5,6 @@ export interface Producto {
     precio: number;
     imagen: string;
     categoria:string;
-    ingredientes: string[];
+    aderezos: string[];  // Lista de aderezos sin costo adicional
+    toppings: Record<string, number>;  // Objeto de toppings con su respectivo precio
   }
