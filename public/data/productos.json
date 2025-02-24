@@ -2,38 +2,29 @@
   {
     "id": 1,
     "nombre": "Hamburguesa Simple",
-    "descripcion": "Pan, aderezos, Carne 100% vacuna, queso a eleccion y papas fritas.",
+    "descripcion": "Pan, Carne 100% vacuna, queso a eleccion, mayonesa casera y papas fritas.",
     "precio": 6000,
     "imagen": "https://i.ibb.co/5gTJRq7M/simple.png",
-    "categoria": "hamburguesa",
-    "aderezos": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "categoria": "Hamburguesas",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 2,
     "nombre": "Hamburguesa Doble",
-    "descripcion": "Pan, aderezos, doble Carne 100% vacuna, doble queso a eleccion y papas fritas.",
+    "descripcion": "Pan, doble Carne 100% vacuna, doble queso a eleccion, mayonesa casera y papas fritas.",
     "precio": 7000,
     "imagen": "https://i.ibb.co/67wq8cqC/doble.png",
-    "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "categoria": "Hamburguesas",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 3,
     "nombre": "Hamburguesa Triple",
-    "descripcion": "Pan, aderezos, triple Carne 100% vacuna, triple queso a eleccion y papas fritas.",
+    "descripcion": "Pan, triple Carne 100% vacuna, triple queso a eleccion, mayonesa casera y papas fritas.",
     "precio": 8200,
     "imagen": "https://i.ibb.co/yBSCdHJK/triple.png",
-    "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
-  },
-  {
-    "id": 4,
-    "nombre": "Hamburguesa Veggie",
-    "descripcion": "Pan, aderezos, medallon 100% veggie, queso a eleccion y papas fritas.",
-    "precio": 1500,
-    "imagen":"https://i.ibb.co/6JB4sVXp/veggie.png",
-    "categoria": "hamburguesa",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "categoria": "Hamburguesas",
+    "aderezos": [ "Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 5,
@@ -56,8 +47,71 @@
   {
     "id": 7,
     "nombre": "Simple + 2 Toppings",
-    "descripcion": "Hamburguesa simple + 2 toppings a eleccion",
+    "descripcion": "Hamburguesa simple + 2 toppings a eleccion + papas fritas",
     "precio": 6700,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 8,
+    "nombre": "Veggie + 2 Toppings",
+    "descripcion": "Hamburguesa veggie + 2 toppings a eleccion + papas fritas",
+    "precio": 6700,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 9,
+    "nombre": "Doble + 2 Toppings",
+    "descripcion": "Hamburguesa doble + 2 toppings a eleccion + papas fritas",
+    "precio": 7700,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 10,
+    "nombre": "Triple + 2 Toppings",
+    "descripcion": "Hamburguesa triple + 2 toppings a eleccion + papas fritas",
+    "precio": 8900,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 11,
+    "nombre": "2 Simples",
+    "descripcion": "2 Hamburguesas simples + papas fritas",
+    "precio": 11800,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "aderezos": [ "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 12,
+    "nombre": "2 Veggies",
+    "descripcion": "2 Hamburguesas veggies + papas fritas",
+    "precio": 11800,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 13,
+    "nombre": "2 Dobles",
+    "descripcion": "2 Hamburguesas dobles + papas fritas",
+    "precio": 13800,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 14,
+    "nombre": "2 Triples",
+    "descripcion": "2 Hamburguesas triples + papas fritas",
+    "precio": 16200,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
     "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
