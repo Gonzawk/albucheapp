@@ -8,6 +8,8 @@ import ProductCard from '../app/components/ProductCard';
 import { getProductos } from '../../lib/API/api';
 import { Producto } from '../../types/product';
 import { useCart } from '../app/context/CartContext';
+import CartModal from '../app/components/CartModal';
+import Footer from '../app/components/Footer';
 
 export default function Inicio() {
   const { imagenPortada } = useImage();
@@ -18,7 +20,7 @@ export default function Inicio() {
 
   // Estado para controlar el modal del carrito
   const [cartOpen, setCartOpen] = useState(false);
-  const { items, removeItem, clearCart } = useCart();
+  const { items, clearCart } = useCart();
 
   useEffect(() => {
     getProductos().then((data) => setProductos(data));
@@ -29,15 +31,15 @@ export default function Inicio() {
     { nombre: "Hamburguesas", key: "Hamburguesas", imagen: "https://i.ibb.co/TqHL0pP2/Fondo.jpg" },
     { nombre: "Sandwiches", key: "Sandwiches", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" },
     { nombre: "Para acompañar", key: "Para acompañar", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" },
+    { nombre: "Veggies", key: "Veggies", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" }
   ];
 
   const productosFiltrados = categoriaSeleccionada 
     ? productos.filter(p => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()) 
     : [];
 
-  // Función para confirmar el pedido (ejemplo: se podría enviar la orden a WhatsApp o limpiar el carrito)
+  // Función para confirmar el pedido
   const confirmOrder = () => {
-    // Aquí podrías agregar la lógica para consolidar la orden
     alert("Pedido confirmado");
     clearCart();
     setCartOpen(false);
@@ -155,26 +157,7 @@ export default function Inicio() {
         )}
       </main>
 
-      {categoriaSeleccionada === null && (
-        <footer className="bg-gray-800 text-white text-center p-6 mt-16 text-lg w-full">
-          Todos los derechos reservados. <br />
-          <a 
-            href="https://portafoliowebgonzadev.netlify.app/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-blue-400 hover:underline"
-          >
-            &copy; GonzaDev
-          </a> 
-          <span className="mx-2">-</span>
-          <a 
-            href="mailto:gdp43191989@gmail.com" 
-            className="text-blue-400 hover:underline"
-          >
-            gdp43191989@gmail.com
-          </a>
-        </footer>
-      )}
+      {categoriaSeleccionada === null && <Footer />}
 
       {/* Botón flotante y modal del carrito solo en la sección MENU */}
       {seccionActiva === "menu" && (
@@ -186,156 +169,7 @@ export default function Inicio() {
             {cartOpen ? "X" : "Carrito"}
           </button>
 
-          {cartOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-white p-4 w-11/12 max-w-lg h-5/6 overflow-y-auto relative rounded">
-                <button 
-                  onClick={() => setCartOpen(false)}
-                  className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-                >
-                  Cerrar
-                </button>
-                <h2 className="text-2xl font-bold mb-4 text-center">Carrito</h2>
-                {items.length === 0 ? (
-                  <p className="text-center">No hay productos en el carrito.</p>
-                ) : (
-                  items.map(item => {
-                    // Si el item es una promo, se espera que tenga la propiedad "hamburguesas" en la personalización
-                    if ("hamburguesas" in item.personalizacion) {
-                      const promoPersonalizacion = item.personalizacion as {
-                        hamburguesas: Array<{
-                          conMayonesa: boolean;
-                          conQueso: boolean;
-                          tipoQueso: string;
-                          seleccionesAderezos: Record<string, boolean>;
-                          observaciones: string;
-                        }>;
-                        metodoEntrega: "retiro" | "delivery" | null;
-                        direccion: {
-                          calle: string;
-                          numero: string;
-                          piso?: string;
-                          departamento?: string;
-                        } | null;
-                        metodoPago: "efectivo" | "transferencia" | null;
-                      };
-                      return (
-                        <div key={item.id} className="border p-4 mb-4 rounded">
-                          <h3 className="font-bold text-lg">
-                            {item.producto.nombre} (Promo)
-                          </h3>
-                          <p className="text-sm font-semibold">Precio: ${item.precio}</p>
-                          <div className="mt-2">
-                            <p className="font-semibold">Personalización:</p>
-                            {promoPersonalizacion.hamburguesas.map((prod: {
-                              conMayonesa: boolean;
-                              conQueso: boolean;
-                              tipoQueso: string;
-                              seleccionesAderezos: Record<string, boolean>;
-                              observaciones: string;
-                            }, index: number) => (
-                              <div key={index} className="ml-4 mt-2 border-l pl-4">
-                                <p className="font-medium">Producto {index + 1}:</p>
-                                <ul className="text-sm text-gray-700 mt-1 space-y-1">
-                                  <li>Mayonesa casera: {prod.conMayonesa ? "Sí" : "No"}</li>
-                                  <li>Con queso: {prod.conQueso ? "Sí" : "No"}</li>
-                                  {prod.conQueso && prod.tipoQueso && (
-                                    <li>Tipo de queso: {prod.tipoQueso}</li>
-                                  )}
-                                  <li>
-                                    Aderezos:{" "}
-                                    {Object.entries(prod.seleccionesAderezos)
-                                      .filter(([_, incluido]) => incluido)
-                                      .map(([aderezo]) => aderezo)
-                                      .join(", ")}
-                                  </li>
-                                  {prod.observaciones && (
-                                    <li>Observaciones: {prod.observaciones}</li>
-                                  )}
-                                </ul>
-                              </div>
-                            ))}
-                          </div>
-                          <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                            <li>Método de entrega: {promoPersonalizacion.metodoEntrega}</li>
-                            {promoPersonalizacion.metodoEntrega === "delivery" && promoPersonalizacion.direccion && (
-                              <li>
-                                Dirección: {promoPersonalizacion.direccion.calle}, {promoPersonalizacion.direccion.numero}
-                                {promoPersonalizacion.direccion.piso && `, Piso: ${promoPersonalizacion.direccion.piso}`}
-                                {promoPersonalizacion.direccion.departamento && `, Departamento: ${promoPersonalizacion.direccion.departamento}`}
-                              </li>
-                            )}
-                            <li>Método de pago: {promoPersonalizacion.metodoPago}</li>
-                          </ul>
-                          <div className="mt-2 flex justify-end">
-                            <button 
-                              onClick={() => removeItem(item.id)}
-                              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      const {
-                        conMayonesa,
-                        conQueso,
-                        tipoQueso,
-                        aderezos,
-                        toppings,
-                        extras,
-                        observaciones,
-                        metodoEntrega,
-                        direccion,
-                        metodoPago,
-                      } = item.personalizacion;
-                      return (
-                        <div key={item.id} className="border p-4 mb-4 rounded">
-                          <h3 className="font-bold text-lg">{item.producto.nombre}</h3>
-                          <p className="text-sm font-semibold">Precio: ${item.precio}</p>
-                          <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                            <li>Mayonesa casera: {conMayonesa ? "Sí" : "No"}</li>
-                            <li>Con queso: {conQueso ? "Sí" : "No"}</li>
-                            {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
-                            {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
-                            {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
-                            {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
-                            {observaciones && <li>Observaciones: {observaciones}</li>}
-                            <li>Método de entrega: {metodoEntrega}</li>
-                            {metodoEntrega === "delivery" && direccion && (
-                              <li>
-                                Dirección: {direccion.calle}, {direccion.numero}
-                                {direccion.piso && `, Piso: ${direccion.piso}`}
-                                {direccion.departamento && `, Departamento: ${direccion.departamento}`}
-                              </li>
-                            )}
-                            <li>Método de pago: {metodoPago}</li>
-                          </ul>
-                          <div className="mt-2 flex justify-end">
-                            <button 
-                              onClick={() => removeItem(item.id)}
-                              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    }
-                  })
-                )}
-                {items.length > 0 && (
-                  <button 
-                    onClick={confirmOrder}
-                    className="mt-4 bg-green-600 text-white px-4 py-2 rounded w-full"
-                  >
-                    Confirmar Pedido
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
+          <CartModal isOpen={cartOpen} onClose={() => setCartOpen(false)} confirmOrder={confirmOrder} />
         </>
       )}
     </div>

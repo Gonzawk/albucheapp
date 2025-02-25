@@ -37,7 +37,7 @@ const AccordionSection = ({
 };
 
 export default function ProductCard({ producto, setPersonalizando }: ProductCardProps) {
-  // Definir IDs para distinguir las promociones
+  // IDs para distinguir promociones
   const promoTipo1Ids = [11, 12, 13, 14];
   const promoTipo2Ids = [7, 8, 9, 10];
   const isPromoTipo1 = promoTipo1Ids.includes(producto.id);
@@ -47,16 +47,14 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
   const [toppingsGlobales, setToppingsGlobales] = useState<Record<string, number>>({});
   // Para producto normal
   const [precioTotal, setPrecioTotal] = useState(producto.precio);
-  const [metodoEntrega, setMetodoEntrega] = useState<"retiro" | "delivery" | null>(null);
 
   // Estados para producto normal
   const [conMayonesa, setConMayonesa] = useState(false);
   const [conQueso, setConQueso] = useState(false);
   const [tipoQueso, setTipoQueso] = useState("");
   const cheeseTypes = ["Cheddar", "Tybo", "Azul", "Provolone"];
-  const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | null>(null);
 
-  // Extras (aplican solo para producto normal)
+  // Extras (solo para producto normal)
   const extrasOptions = ["Medallón de Carne", "Dips de Aderezo"];
   const extrasPrecios: Record<string, number> = {
     "Medallón de Carne": 1700,
@@ -84,12 +82,6 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
     }, {})
   );
   const [seleccionesToppings, setSeleccionesToppings] = useState<Record<string, boolean>>({});
-
-  // Datos para dirección en caso de Delivery (comunes)
-  const [calle, setCalle] = useState("");
-  const [numero, setNumero] = useState("");
-  const [piso, setPiso] = useState("");
-  const [departamento, setDepartamento] = useState("");
 
   // Funciones de toggle para producto normal
   const toggleTopping = (topping: string) => {
@@ -124,7 +116,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
     }
   }, [seleccionesToppings, seleccionesExtras, toppingsGlobales, producto.precio, isPromoTipo1, isPromoTipo2]);
 
-  // Estados para promociones Tipo 1: 2 hamburguesas (solo Personalización, Aderezos y Observaciones)
+  // Estados para promociones Tipo 1: 2 hamburguesas (personalización, aderezos y observaciones)
   const [promoType1Customizations, setPromoType1Customizations] = useState(
     isPromoTipo1
       ? [
@@ -151,7 +143,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
         ]
       : []
   );
-  // Estados para promociones Tipo 2: 1 hamburguesa con opción de seleccionar hasta 2 toppings
+  // Para promociones Tipo 2: 1 hamburguesa con opción de seleccionar hasta 2 toppings (ya incluidos)
   const [promoType2Customization, setPromoType2Customization] = useState(
     isPromoTipo2
       ? {
@@ -168,28 +160,23 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       : null
   );
   const [promoPrecioTotal, setPromoPrecioTotal] = useState(0);
-  // Actualiza precio para promo Tipo 1: se usa el precio base sin multiplicarlo
+  // El precio de la promo se mantiene en el precio base
   useEffect(() => {
     if (isPromoTipo1) {
       setPromoPrecioTotal(producto.precio);
     }
   }, [isPromoTipo1, producto.precio]);
-  // Actualiza precio para promo Tipo 2
   useEffect(() => {
     if (isPromoTipo2 && promoType2Customization) {
-      const costoToppings = Object.entries(promoType2Customization.seleccionesToppings)
-        .filter(([_, included]) => included)
-        .reduce((total, [t]) => total + (toppingsGlobales[t] || 0), 0);
-      setPromoPrecioTotal(producto.precio + costoToppings);
+      setPromoPrecioTotal(producto.precio);
     }
-  }, [isPromoTipo2, promoType2Customization, toppingsGlobales, producto.precio]);
+  }, [isPromoTipo2, promoType2Customization, producto.precio]);
 
   const { addItem } = useCart();
 
   const agregarAlCarrito = () => {
     if (isPromoTipo1) {
-      // Se agrega un solo ítem de promo que incluye ambas hamburguesas personalizadas.
-      // Se agregan los campos obligatorios con valores por defecto o derivados.
+      // Agrega un ítem de promo que incluye ambas hamburguesas personalizadas.
       const item = {
         id: uuidv4(),
         producto,
@@ -197,24 +184,16 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
           conMayonesa: false,
           conQueso: false,
           tipoQueso: "",
-          aderezos: [],
-          toppings: [],
-          extras: [],
-          // Se incluyen las personalizaciones de cada hamburguesa en observaciones (o bien, se pueden concatenar de otra forma)
+          aderezos: [] as string[],
+          toppings: [] as string[],
+          extras: [] as string[],
           observaciones: JSON.stringify(promoType1Customizations),
-          // Se agrega la información real de cada hamburguesa en un campo adicional
           hamburguesas: promoType1Customizations,
-          metodoEntrega,
-          direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
-          metodoPago,
         },
         precio: producto.precio,
       };
       addItem(item);
     } else if (isPromoTipo2 && promoType2Customization) {
-      const costoToppings = Object.entries(promoType2Customization.seleccionesToppings)
-        .filter(([_, included]) => included)
-        .reduce((total, [t]) => total + (toppingsGlobales[t] || 0), 0);
       const item = {
         id: uuidv4(),
         producto,
@@ -225,16 +204,14 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
           aderezos: Object.entries(promoType2Customization.seleccionesAderezos)
                     .filter(([_, included]) => included)
                     .map(([a]) => a),
+          // Los toppings ya vienen incluidos en la promo, sin afectar el precio
           toppings: Object.entries(promoType2Customization.seleccionesToppings)
                     .filter(([_, included]) => included)
                     .map(([t]) => t),
-          extras: [], // No extras para promo tipo 2
+          extras: [] as string[],
           observaciones: promoType2Customization.observaciones,
-          metodoEntrega,
-          direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
-          metodoPago,
         },
-        precio: producto.precio + costoToppings,
+        precio: producto.precio,
       };
       addItem(item);
     } else {
@@ -255,9 +232,6 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
             .filter(([_, incluido]) => incluido)
             .map(([e]) => e),
           observaciones,
-          metodoEntrega,
-          direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
-          metodoPago,
         },
         precio: precioTotal,
       };
@@ -266,111 +240,8 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
     setMostrarOpciones(false);
     setPersonalizando(false);
   };
-  
 
-  const generarPedido = () => {
-    if (isPromoTipo1) {
-      let mensaje = `🍔 *Pedido de ${producto.nombre} (Promo Tipo 1)* 🍔\n\n`;
-      promoType1Customizations.forEach((custom, i) => {
-        mensaje += `*Hamburguesa ${i + 1}:*\n`;
-        mensaje += `Precio: $${producto.precio}\n`;
-        mensaje += `Mayonesa: ${custom.conMayonesa ? "Sí" : "No"}\n`;
-        mensaje += `Con queso: ${custom.conQueso ? "Sí" : "No"}\n`;
-        if (custom.conQueso && custom.tipoQueso) {
-          mensaje += `Tipo de queso: ${custom.tipoQueso}\n`;
-        }
-        const aderezosSel = Object.entries(custom.seleccionesAderezos)
-          .filter(([_, included]) => included)
-          .map(([a]) => a);
-        if (aderezosSel.length) {
-          mensaje += `Aderezos: ${aderezosSel.join(", ")}\n`;
-        }
-        if (custom.observaciones.trim()) {
-          mensaje += `Observaciones: ${custom.observaciones}\n`;
-        }
-        mensaje += "\n";
-      });
-      mensaje += `*Total Promo:* $${producto.precio}\n`;
-      mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
-      const numeroTelefono = "+543513030145";
-      const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-    } else if (isPromoTipo2 && promoType2Customization) {
-      let mensaje = `🍔 *Pedido de ${producto.nombre} (Promo Tipo 2)* 🍔\n\n`;
-      const costoToppings = Object.entries(promoType2Customization.seleccionesToppings)
-        .filter(([_, included]) => included)
-        .reduce((total, [t]) => total + (toppingsGlobales[t] || 0), 0);
-      const costo = producto.precio + costoToppings;
-      mensaje += `Precio: $${costo}\n`;
-      mensaje += `Mayonesa: ${promoType2Customization.conMayonesa ? "Sí" : "No"}\n`;
-      mensaje += `Con queso: ${promoType2Customization.conQueso ? "Sí" : "No"}\n`;
-      if (promoType2Customization.conQueso && promoType2Customization.tipoQueso) {
-        mensaje += `Tipo de queso: ${promoType2Customization.tipoQueso}\n`;
-      }
-      const aderezosSel = Object.entries(promoType2Customization.seleccionesAderezos)
-        .filter(([_, included]) => included)
-        .map(([a]) => a);
-      if (aderezosSel.length) {
-        mensaje += `Aderezos: ${aderezosSel.join(", ")}\n`;
-      }
-      const toppingsSel = Object.entries(promoType2Customization.seleccionesToppings)
-        .filter(([_, included]) => included)
-        .map(([t]) => t);
-      if (toppingsSel.length) {
-        mensaje += `Toppings: ${toppingsSel.join(", ")}\n`;
-      }
-      if (promoType2Customization.observaciones.trim()) {
-        mensaje += `Observaciones: ${promoType2Customization.observaciones}\n`;
-      }
-      mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
-      const numeroTelefono = "+543513030145";
-      const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-    } else {
-      const aderezosSeleccionados = Object.entries(seleccionesAderezos)
-        .filter(([_, incluido]) => incluido)
-        .map(([a]) => a);
-      const toppingsSeleccionados = Object.entries(seleccionesToppings)
-        .filter(([_, incluido]) => incluido)
-        .map(([t]) => t);
-      const extrasSeleccionados = Object.entries(seleccionesExtras)
-        .filter(([_, incluido]) => incluido)
-        .map(([e]) => e);
-  
-      let mensaje = `🍔 *Pedido de ${producto.nombre}* 🍔\n\n`;
-      mensaje += `💰 *Precio Total:* $${precioTotal}\n\n`;
-      mensaje += `Mayonesa: ${conMayonesa ? "Sí" : "No"}\n`;
-      mensaje += `Con queso: ${conQueso ? "Sí" : "No"}\n`;
-      if (conQueso && tipoQueso) {
-        mensaje += `Tipo de queso: ${tipoQueso}\n`;
-      }
-      mensaje += "\n";
-      if (aderezosSeleccionados.length > 0) {
-        mensaje += `Aderezos: ${aderezosSeleccionados.join(", ")}\n`;
-      }
-      if (toppingsSeleccionados.length > 0) {
-        mensaje += `Toppings (extra): ${toppingsSeleccionados.join(", ")}\n`;
-      }
-      if (extrasSeleccionados.length > 0) {
-        mensaje += `Extras: ${extrasSeleccionados.join(", ")}\n`;
-      }
-      if (observaciones.trim()) {
-        mensaje += `Observaciones: ${observaciones}\n`;
-      }
-      mensaje += `Entrega: ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
-      if (metodoEntrega === "delivery") {
-        mensaje += `Dirección:\nCalle: ${calle}\nNúmero: ${numero}\n`;
-        if (piso.trim()) mensaje += `Piso: ${piso}\n`;
-        if (departamento.trim()) mensaje += `Departamento: ${departamento}\n`;
-      }
-      mensaje += `Método de Pago: ${metodoPago ? (metodoPago === "transferencia" ? "Transferencia" : "Efectivo") : "No seleccionado"}\n`;
-      mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
-  
-      const numeroTelefono = "+543513030145";
-      const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-    }
-  };
+  // Se elimina la función generarPedido (la lógica se moverá a CartModal.tsx)
 
   return (
     <div className="bg-white p-6 shadow-lg rounded-lg text-center relative w-80 min-h-[450px] flex flex-col justify-between">
@@ -389,7 +260,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       <h2 className="text-2xl font-semibold mt-4">{producto.nombre}</h2>
       <p className="text-gray-700 mt-2">{producto.descripcion}</p>
       <span className="text-black-600 font-bold text-xl block mt-4">
-        Precio Base: ${producto.precio}
+         ${producto.precio}
       </span>
 
       <button
@@ -570,6 +441,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
                   ))}
                 </AccordionSection>
                 <AccordionSection title="Toppings">
+                  <p className="text-sm text-gray-600 mb-2">(Máximo 2)</p>
                   {Object.keys(toppingsGlobales).map((topping) => {
                     const currentCount = Object.values(promoType2Customization.seleccionesToppings).filter(Boolean).length;
                     const isChecked = promoType2Customization.seleccionesToppings[topping] || false;
@@ -703,122 +575,29 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
               Total: ${isPromoTipo1 || isPromoTipo2 ? promoPrecioTotal : precioTotal}
             </p>
 
-            <AccordionSection title="Entrega">
-              <div className="mt-4 flex justify-center gap-4">
-                <button
-                  className={`px-4 py-2 rounded ${metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
-                  onClick={() => setMetodoEntrega("retiro")}
-                >
-                  Retiro en el Local
-                </button>
-                <button
-                  className={`px-4 py-2 rounded ${metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
-                  onClick={() => setMetodoEntrega("delivery")}
-                >
-                  Delivery
-                </button>
-              </div>
-              {metodoEntrega === "delivery" && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Calle"
-                    value={calle}
-                    onChange={(e) => setCalle(e.target.value)}
-                    className="w-full p-2 border rounded mt-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Número"
-                    value={numero}
-                    onChange={(e) => setNumero(e.target.value)}
-                    className="w-full p-2 border rounded mt-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Piso"
-                    value={piso}
-                    onChange={(e) => setPiso(e.target.value)}
-                    className="w-full p-2 border rounded mt-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Departamento"
-                    value={departamento}
-                    onChange={(e) => setDepartamento(e.target.value)}
-                    className="w-full p-2 border rounded mt-2"
-                  />
-                </>
-              )}
-            </AccordionSection>
-
-            <AccordionSection title="Método de Pago">
-              <div className="mt-4 flex justify-center gap-4">
-                <button
-                  className={`px-4 py-2 rounded ${metodoPago === "efectivo" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
-                  onClick={() => setMetodoPago("efectivo")}
-                >
-                  Efectivo
-                </button>
-                <button
-                  className={`px-4 py-2 rounded ${metodoPago === "transferencia" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
-                  onClick={() => setMetodoPago("transferencia")}
-                >
-                  Transferencia
-                </button>
-              </div>
-              {metodoPago === "transferencia" && (
-                <p className="mt-2 text-sm text-gray-700">
-                  Realiza la transferencia a: Banco XYZ, Cuenta: 123456789, CBU: 000000000
-                </p>
-              )}
-            </AccordionSection>
-
+            {/* Se han eliminado las secciones de Entrega, Método de Pago y la función generarPedido */}
+            {/* Se muestran solo los botones para Agregar al Carrito y Volver atrás */}
             {isPromoTipo1 ? (
-              <>
-                <button
-                  onClick={agregarAlCarrito}
-                  className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-                >
-                  Agregar Promo (2 unidades) al Carrito
-                </button>
-                <button
-                  onClick={generarPedido}
-                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded w-full"
-                >
-                  Pedir Promo por WhatsApp
-                </button>
-              </>
+              <button
+                onClick={agregarAlCarrito}
+                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
+              >
+                Agregar Promo (2 unidades) al Carrito
+              </button>
             ) : isPromoTipo2 ? (
-              <>
-                <button
-                  onClick={agregarAlCarrito}
-                  className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-                >
-                  Agregar Promo al Carrito
-                </button>
-                <button
-                  onClick={generarPedido}
-                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded w-full"
-                >
-                  Pedir Promo por WhatsApp
-                </button>
-              </>
+              <button
+                onClick={agregarAlCarrito}
+                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
+              >
+                Agregar Promo al Carrito
+              </button>
             ) : (
-              <>
-                <button
-                  onClick={agregarAlCarrito}
-                  className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-                >
-                  Agregar al Carrito
-                </button>
-                <button
-                  onClick={generarPedido}
-                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded w-full"
-                >
-                  Pedir por WhatsApp
-                </button>
-              </>
+              <button
+                onClick={agregarAlCarrito}
+                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
+              >
+                Agregar al Carrito
+              </button>
             )}
 
             <button

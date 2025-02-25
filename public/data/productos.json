@@ -32,8 +32,8 @@
     "descripcion": "Delicioso lomo con huevo y verduras frescas.",
     "precio": 1500,
     "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
-    "categoria": "Sandwiches",
-    "ingredientes": ["Mayonesa", "Huevo"]
+    "categoria": "Veggies",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 6,
@@ -42,7 +42,7 @@
     "precio": 1500,
     "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
     "categoria": "Sandwiches",
-    "ingredientes": ["Mayonesa", "Huevo"]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 7,
@@ -51,7 +51,7 @@
     "precio": 6700,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 8,
@@ -59,8 +59,8 @@
     "descripcion": "Hamburguesa veggie + 2 toppings a eleccion + papas fritas",
     "precio": 6700,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
-    "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "categoria": "Veggies",
+   "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 9,
@@ -69,7 +69,7 @@
     "precio": 7700,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 10,
@@ -78,7 +78,7 @@
     "precio": 8900,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 11,
@@ -95,8 +95,8 @@
     "descripcion": "2 Hamburguesas veggies + papas fritas",
     "precio": 11800,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
-    "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "categoria": "Veggies",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 13,
@@ -105,7 +105,7 @@
     "precio": 13800,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
     "id": 14,
@@ -114,7 +114,7 @@
     "precio": 16200,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
-    "ingredientes": ["Mayonesa Casera", "Salsa de la Casa", "Ketchup","Savora" ]
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   }
 ]
 

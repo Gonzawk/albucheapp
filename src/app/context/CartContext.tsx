@@ -12,9 +12,6 @@ export interface CartItem {
     toppings: string[];
     extras: string[];
     observaciones: string;
-    metodoEntrega: "retiro" | "delivery" | null;
-    direccion: { calle: string; numero: string; piso: string; departamento: string } | null;
-    metodoPago: "efectivo" | "transferencia" | null;
   };
   precio: number;
 }
