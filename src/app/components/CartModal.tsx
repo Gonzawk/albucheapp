@@ -25,7 +25,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         mensaje += `🍔 *${item.producto.nombre} (Promo)* 🍔\n\n`;
         (item.personalizacion as any).hamburguesas.forEach((prod: any, index: number) => {
           mensaje += `*Producto ${index + 1}:*\n`;
-          // Se elimina la línea de precio en cada producto
           mensaje += `Mayonesa: ${prod.conMayonesa ? "Sí" : "No"}\n`;
           mensaje += `Con queso: ${prod.conQueso ? "Sí" : "No"}\n`;
           if (prod.conQueso && prod.tipoQueso) {
@@ -42,8 +41,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           }
           mensaje += "\n";
         });
-        // Se muestra el precio total de la promo una sola vez
-        mensaje += `Total Promo: $${item.precio}\n\n`;
+        mensaje += `*Total Promo:* $${item.precio}\n\n`;
       } else {
         mensaje += `🍔 *${item.producto.nombre}* 🍔\n\n`;
         const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion;
@@ -69,7 +67,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       }
     });
 
-    // Agregar información del método de entrega
     if (metodoEntrega) {
       mensaje += `Método de entrega: ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
       if (metodoEntrega === "delivery") {
@@ -79,14 +76,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         mensaje += "\n";
       }
     }
-    // Agregar información del método de pago
     if (metodoPago) {
       mensaje += `Método de pago: ${metodoPago}\n`;
       if (metodoPago === "Transferencia") {
         mensaje += `Realizar transferencia a: Banco XYZ, Cuenta: 123456789, CBU: 000000000\n`;
       }
     }
-    mensaje += `\n *Total del Carrito: $${totalCarrito}*\n`;
+    mensaje += `\n*Total del Carrito: $${totalCarrito}*\n`;
     mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
     const numeroTelefono = "+543832460459";
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
@@ -98,7 +94,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-4 w-11/12 max-w-lg h-5/6 overflow-y-auto relative rounded">
+      <div className="bg-white p-6 w-11/12 max-w-lg h-5/6 overflow-y-auto relative rounded shadow-lg">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
@@ -109,90 +105,92 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         {items.length === 0 ? (
           <p className="text-center">No hay productos en el carrito.</p>
         ) : (
-          items.map(item => {
-            if ("hamburguesas" in item.personalizacion) {
-              const promoPersonalizacion = item.personalizacion as {
-                hamburguesas: Array<{
-                  conMayonesa: boolean;
-                  conQueso: boolean;
-                  tipoQueso: string;
-                  seleccionesAderezos: Record<string, boolean>;
-                  observaciones: string;
-                }>;
-              };
-              return (
-                <div key={item.id} className="border p-4 mb-4 rounded">
-                  <h3 className="font-bold text-lg">
-                    {item.producto.nombre} (Promo)
-                  </h3>
-                  <p className="text-sm font-semibold">Precio: ${item.precio}</p>
-                  <div className="mt-2">
-                    <p className="font-semibold">Personalización:</p>
-                    {promoPersonalizacion.hamburguesas.map((prod, index) => (
-                      <div key={index} className="ml-4 mt-2 border-l pl-4">
-                        <p className="font-medium">Producto {index + 1}:</p>
-                        <ul className="text-sm text-gray-700 mt-1 space-y-1">
-                          <li>Mayonesa casera: {prod.conMayonesa ? "Sí" : "No"}</li>
-                          <li>Con queso: {prod.conQueso ? "Sí" : "No"}</li>
-                          {prod.conQueso && prod.tipoQueso && (
-                            <li>Tipo de queso: {prod.tipoQueso}</li>
-                          )}
-                          <li>
-                            Aderezos:{" "}
-                            {Object.entries(prod.seleccionesAderezos)
-                              .filter(([_, incluido]) => incluido)
-                              .map(([aderezo]) => aderezo)
-                              .join(", ")}
-                          </li>
-                          {prod.observaciones && (
-                            <li>Observaciones: {prod.observaciones}</li>
-                          )}
-                        </ul>
-                      </div>
-                    ))}
+          <div className="grid grid-cols-1 gap-4">
+            {items.map(item => {
+              if ("hamburguesas" in item.personalizacion) {
+                const promoPersonalizacion = item.personalizacion as {
+                  hamburguesas: Array<{
+                    conMayonesa: boolean;
+                    conQueso: boolean;
+                    tipoQueso: string;
+                    seleccionesAderezos: Record<string, boolean>;
+                    observaciones: string;
+                  }>;
+                };
+                return (
+                  <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                    <h3 className="font-bold text-lg text-center">
+                      {item.producto.nombre} (Promo)
+                    </h3>
+                    <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                    <div className="mt-2 grid grid-cols-1 gap-2">
+                      {promoPersonalizacion.hamburguesas.map((prod, index) => (
+                        <div key={index} className="border border-gray-200 p-2 rounded">
+                          <p className="font-medium">Producto {index + 1}:</p>
+                          <ul className="text-sm text-gray-700 mt-1 space-y-1">
+                            <li>Mayonesa: {prod.conMayonesa ? "Sí" : "No"}</li>
+                            <li>Con queso: {prod.conQueso ? "Sí" : "No"}</li>
+                            {prod.conQueso && prod.tipoQueso && (
+                              <li>Tipo de queso: {prod.tipoQueso}</li>
+                            )}
+                            <li>
+                              Aderezos:{" "}
+                              {Object.entries(prod.seleccionesAderezos)
+                                .filter(([_, incluido]) => incluido)
+                                .map(([aderezo]) => aderezo)
+                                .join(", ")}
+                            </li>
+                            {prod.observaciones && (
+                              <li>Observaciones: {prod.observaciones}</li>
+                            )}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 flex justify-end">
+                      <button 
+                        onClick={() => removeItem(item.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
-                  <div className="mt-2 flex justify-end">
-                    <button 
-                      onClick={() => removeItem(item.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                    >
-                      Eliminar
-                    </button>
+                );
+              } else {
+                const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion;
+                return (
+                  <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                    <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
+                    <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                    <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                      <li>Mayonesa: {conMayonesa ? "Sí" : "No"}</li>
+                      <li>Con queso: {conQueso ? "Sí" : "No"}</li>
+                      {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
+                      {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
+                      {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
+                      {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
+                      {observaciones && <li>Observaciones: {observaciones}</li>}
+                    </ul>
+                    <div className="mt-2 flex justify-end">
+                      <button 
+                        onClick={() => removeItem(item.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            } else {
-              const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion;
-              return (
-                <div key={item.id} className="border p-4 mb-4 rounded">
-                  <h3 className="font-bold text-lg">{item.producto.nombre}</h3>
-                  <p className="text-sm font-semibold">Precio: ${item.precio}</p>
-                  <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                    <li>Mayonesa casera: {conMayonesa ? "Sí" : "No"}</li>
-                    <li>Con queso: {conQueso ? "Sí" : "No"}</li>
-                    {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
-                    {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
-                    {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
-                    {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
-                    {observaciones && <li>Observaciones: {observaciones}</li>}
-                  </ul>
-                  <div className="mt-2 flex justify-end">
-                    <button 
-                      onClick={() => removeItem(item.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              );
-            }
-          })
+                );
+              }
+            })}
+          </div>
         )}
+
         {items.length > 0 && (
           <>
             <div className="mt-4 flex flex-col gap-4">
-              <div className="border p-4 rounded">
+              <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
                 <p className="font-bold">Método de Entrega</p>
                 <div className="mt-2 flex justify-center gap-4">
                   <button 
@@ -241,7 +239,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </div>
                 )}
               </div>
-              <div className="border p-4 rounded">
+              <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
                 <p className="font-bold">Método de Pago</p>
                 <div className="mt-2 flex justify-center gap-4">
                   <button 
@@ -258,7 +256,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </button>
                 </div>
                 {metodoPago === "Transferencia" && (
-                  <div className="mt-4 border p-2 rounded">
+                  <div className="mt-4 border border-gray-300 p-2 rounded">
                     <p className="text-sm">Banco XYZ</p>
                     <p className="text-sm">Cuenta: 123456789</p>
                     <p className="text-sm">CBU: 000000000</p>

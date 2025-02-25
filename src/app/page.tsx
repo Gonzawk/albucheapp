@@ -38,13 +38,6 @@ export default function Inicio() {
     ? productos.filter(p => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()) 
     : [];
 
-  // Función para confirmar el pedido
-  const confirmOrder = () => {
-    alert("Pedido confirmado");
-    clearCart();
-    setCartOpen(false);
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col items-center relative text-center w-full">
       <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
@@ -169,7 +162,7 @@ export default function Inicio() {
             {cartOpen ? "X" : "Carrito"}
           </button>
 
-          <CartModal isOpen={cartOpen} onClose={() => setCartOpen(false)} confirmOrder={confirmOrder} />
+          <CartModal isOpen={cartOpen} onClose={() => setCartOpen(false)} />
         </>
       )}
     </div>
