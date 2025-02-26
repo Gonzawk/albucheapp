@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white text-center p-6 mt-16 text-lg w-full">
+    <footer className="bg-gray-800 text-white text-center p-6 mt-10 text-lg w-full">
       Todos los derechos reservados. <br />
       <a 
         href="https://portafoliowebgonzadev.netlify.app/" 
@@ -11,7 +11,7 @@ export default function Footer() {
         rel="noopener noreferrer" 
         className="text-blue-400 hover:underline"
       >
-        &copy; GonzaDev
+        &copy;GonzaDev
       </a> 
       <span className="mx-2">-</span>
       <a 

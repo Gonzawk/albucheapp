@@ -29,9 +29,9 @@
   {
     "id": 5,
     "nombre": "Vegetariano",
-    "descripcion": "Delicioso lomo con huevo y verduras frescas.",
-    "precio": 1500,
-    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "descripcion": "Pan, colchon de hongos salteados, doble queso tybo, huevo, lechuga, tomate y mayonesa casera + papas fritas.",
+    "precio": 9200,
+    "imagen":"https://i.ibb.co/PsN4RWyB/Captura-de-pantalla-2025-02-26-194536.png",
     "categoria": "Veggies",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -40,7 +40,7 @@
     "nombre": "Tostado",
     "descripcion": "Delicioso lomo con huevo y verduras frescas.",
     "precio": 1500,
-    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "imagen":"https://i.ibb.co/gZrH4TCX/tostado.png",
     "categoria": "Sandwiches",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -58,7 +58,7 @@
     "nombre": "Veggie + 2 Toppings",
     "descripcion": "Hamburguesa veggie + 2 toppings a eleccion + papas fritas",
     "precio": 6700,
-    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "imagen":"https://i.ibb.co/6JB4sVXp/veggie.png",
     "categoria": "Veggies",
    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -67,7 +67,7 @@
     "nombre": "Doble + 2 Toppings",
     "descripcion": "Hamburguesa doble + 2 toppings a eleccion + papas fritas",
     "precio": 7700,
-    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "imagen":"https://i.ibb.co/67wq8cqC/doble.png",
     "categoria": "promociones",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -76,7 +76,7 @@
     "nombre": "Triple + 2 Toppings",
     "descripcion": "Hamburguesa triple + 2 toppings a eleccion + papas fritas",
     "precio": 8900,
-    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "imagen":"https://i.ibb.co/yBSCdHJK/triple.png",
     "categoria": "promociones",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -94,7 +94,7 @@
     "nombre": "2 Veggies",
     "descripcion": "2 Hamburguesas veggies + papas fritas",
     "precio": 11800,
-    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "imagen":"https://i.ibb.co/6JB4sVXp/veggie.png",
     "categoria": "Veggies",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -103,7 +103,7 @@
     "nombre": "2 Dobles",
     "descripcion": "2 Hamburguesas dobles + papas fritas",
     "precio": 13800,
-    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "imagen":"https://i.ibb.co/67wq8cqC/doble.png",
     "categoria": "promociones",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
@@ -112,8 +112,107 @@
     "nombre": "2 Triples",
     "descripcion": "2 Hamburguesas triples + papas fritas",
     "precio": 16200,
+    "imagen":"https://i.ibb.co/yBSCdHJK/triple.png",
+    "categoria": "promociones",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 15,
+    "nombre": "Tostado con papas fritas",
+    "descripcion": "Tostado + papas fritas",
+    "precio": 6900,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
     "categoria": "promociones",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 16,
+    "nombre": "Vegetariano con papas fritas",
+    "descripcion": "Sandwich vegetariano + papas fritas",
+    "precio": 9200,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 17,
+    "nombre": "Clasico con papas fritas",
+    "descripcion": "Sandwich clasico + papas fritas",
+    "precio": 4890,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 18,
+    "nombre": "Papas + 9 Aros + 2 Dip",
+    "descripcion": "Papas fritas + 9 Aros de cebolla + 2 DIP",
+    "precio": 8900,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "promociones",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 19,
+    "nombre": "Clasico al paso",
+    "descripcion": "Jamon cocido, queso tybo y mayonesa casera.",
+    "precio": 3890,
+    "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
+    "categoria": "Sandwiches",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 20,
+    "nombre": "Completo",
+    "descripcion": "Pan, jamon cocido, queso tybo, huevo, lechuga, tomate y mayonesa casera + papas fritas.",
+    "precio": 7900,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Sandwiches",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 21,
+    "nombre": "Papas",
+    "descripcion": "Papas fritas.",
+    "precio": 4300,
+    "imagen":"https://i.ibb.co/Fb3pfX3b/papasfritas-1.png",
+    "categoria": "Para acompañar",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 22,
+    "nombre": "Aros de cebolla",
+    "descripcion": "Aros de cebolla.",
+    "precio": 4700,
+    "imagen":"https://i.ibb.co/QvyxHtJP/arosdecebolla.png",
+    "categoria": "Para acompañar",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 23,
+    "nombre": "Nuggets",
+    "descripcion": "Nuggets de pollo.",
+    "precio": 4700,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Para acompañar",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 24,
+    "nombre": "Papas + Nuggets o Aros + 2 Dips",
+    "descripcion": "Nuggets de pollo.",
+    "precio": 8900,
+    "imagen":"https://i.ibb.co/Ld51tNj4/lomo.jpg",
+    "categoria": "Para acompañar",
+    "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
+  },
+  {
+    "id": 23,
+    "nombre": "Medallon Veggie",
+    "descripcion": "Pan, medallon veggie, queso a eleccion + papas fritas",
+    "precio": 6000,
+    "imagen":"https://i.ibb.co/6JB4sVXp/veggie.png",
+    "categoria": "Veggies",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   }
 ]

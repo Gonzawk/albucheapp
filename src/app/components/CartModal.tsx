@@ -257,13 +257,16 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 </div>
                 {metodoPago === "Transferencia" && (
                   <div className="mt-4 border border-gray-300 p-2 rounded">
-                    <p className="text-sm">Banco XYZ</p>
-                    <p className="text-sm">Cuenta: 123456789</p>
-                    <p className="text-sm">CBU: 000000000</p>
+                    <p className="text-sm">BANCO GALICIA</p>
+                    <p className="text-sm">TITULAR: Carla Sofia Gigena Holvoet</p>
+                    <p className="text-sm">DU: 39825818</p>
+                    <p className="text-sm">CTA: 4011194-5 344-1</p>
+                    <p className="text-sm">CBU: 0070344230004011194511</p>
+                    <p className="text-sm">ALIAS: ALBUCHENUEVA</p>
                   </div>
                 )}
               </div>
-              <p className="text-lg font-bold">Total del Carrito: ${totalCarrito}</p>
+              <p className="text-lg font-bold mt-0 mb-2">Total del Carrito: ${totalCarrito}</p>
             </div>
             <button 
               onClick={generarPedido}
