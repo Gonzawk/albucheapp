@@ -101,7 +101,7 @@ export default function Inicio() {
           />
           <div className="mt-4 border border-gray-300 rounded p-4 shadow">
             <p className="text-xl font-semibold text-gray-800">
-              Horario de Atención: {HORARIO_INICIO}hs a {HORARIO_FIN}hs - ¡Te esperamos!
+              Horario de Atención: Todos los dias. {HORARIO_INICIO}hs a {HORARIO_FIN}hs - ¡Te esperamos!
             </p>
             
           </div>
