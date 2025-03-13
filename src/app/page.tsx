@@ -176,10 +176,10 @@ export default function Inicio() {
           <>
             <h1 className="text-5xl font-bold mb-6">Contáctanos</h1>
             <p className="text-lg text-gray-700 max-w-2xl mb-8 mx-auto">
-              ¡Estamos aquí para atenderte! Puedes visitarnos, llamarnos o escribirnos por Instagram o WhatsApp por cualquier consulta.
+              ¡Estamos aquí para atenderte! Puedes visitarnos, o escribirnos por WhatsApp para cualquier consulta. Tambien podes visitar nuestro perfil de Instagram!
             </p>
             {/* Nuevo componente de redes sociales */}
-            <div className="mb-0">
+            <div className="mb-4">
               <SocialMedia />
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-xl text-center w-full max-w-3xl border border-gray-200 mx-auto">

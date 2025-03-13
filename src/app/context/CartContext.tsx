@@ -1,18 +1,33 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
 
+export type Personalizacion =
+  | {
+      tipo: "completo";
+      conMayonesa: boolean;
+      conQueso: boolean;
+      tipoQueso: string;
+      aderezos: string[];
+      toppings: string[];
+      extras: string[];
+      observaciones: string;
+      hamburguesas?: any[]; // Opcional para promos
+    }
+  | {
+      tipo: "observaciones";
+      observaciones: string;
+    }
+  | {
+      tipo: "acompanar";
+      opcion: string;
+      dips: string[];
+      observaciones: string;
+    };
+
 export interface CartItem {
   id: string;
   producto: any;
-  personalizacion: {
-    conMayonesa: boolean;
-    conQueso: boolean;
-    tipoQueso: string;
-    aderezos: string[];
-    toppings: string[];
-    extras: string[];
-    observaciones: string;
-  };
+  personalizacion: Personalizacion;
   precio: number;
 }
 

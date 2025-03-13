@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 
 interface CartModalProps {
@@ -43,25 +44,42 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         });
         mensaje += `*Total Promo:* $${item.precio}\n\n`;
       } else {
+        const tipo = (item.personalizacion as any).tipo;
         mensaje += `🍔 *${item.producto.nombre}* 🍔\n\n`;
-        const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion;
         mensaje += `Precio: $${item.precio}\n`;
-        mensaje += `Mayonesa: ${conMayonesa ? "Sí" : "No"}\n`;
-        mensaje += `Con queso: ${conQueso ? "Sí" : "No"}\n`;
-        if (conQueso && tipoQueso) {
-          mensaje += `Tipo de queso: ${tipoQueso}\n`;
-        }
-        if (aderezos && aderezos.length > 0) {
-          mensaje += `Aderezos: ${aderezos.join(", ")}\n`;
-        }
-        if (toppings && toppings.length > 0) {
-          mensaje += `Toppings: ${toppings.join(", ")}\n`;
-        }
-        if (extras && extras.length > 0) {
-          mensaje += `Extras: ${extras.join(", ")}\n`;
-        }
-        if (observaciones.trim()) {
-          mensaje += `Observaciones: ${observaciones}\n`;
+        if (tipo === "completo") {
+          const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion as any;
+          mensaje += `Mayonesa: ${conMayonesa ? "Sí" : "No"}\n`;
+          mensaje += `Con queso: ${conQueso ? "Sí" : "No"}\n`;
+          if (conQueso && tipoQueso) {
+            mensaje += `Tipo de queso: ${tipoQueso}\n`;
+          }
+          if (aderezos && aderezos.length > 0) {
+            mensaje += `Aderezos: ${aderezos.join(", ")}\n`;
+          }
+          if (toppings && toppings.length > 0) {
+            mensaje += `Toppings: ${toppings.join(", ")}\n`;
+          }
+          if (extras && extras.length > 0) {
+            mensaje += `Extras: ${extras.join(", ")}\n`;
+          }
+          if (observaciones.trim()) {
+            mensaje += `Observaciones: ${observaciones}\n`;
+          }
+        } else if (tipo === "observaciones") {
+          const { observaciones } = item.personalizacion as any;
+          if (observaciones.trim()) {
+            mensaje += `Observaciones: ${observaciones}\n`;
+          }
+        } else if (tipo === "acompanar") {
+          const { opcion, dips, observaciones } = item.personalizacion as any;
+          mensaje += `Opción principal: ${opcion}\n`;
+          if (dips && dips.length > 0) {
+            mensaje += `DIPS: ${dips.join(", ")}\n`;
+          }
+          if (observaciones.trim()) {
+            mensaje += `Observaciones: ${observaciones}\n`;
+          }
         }
         mensaje += "\n";
       }
@@ -87,13 +105,22 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     const numeroTelefono = "+543832460459";
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, "_blank");
-    alert("Listo, ahora aguarde la confirmación de su pedido. Muchas Gracias.");
+
+    alert("Listo, ahora aguarde la confirmación de su pedido por WhatsApp. Muchas Gracias.");
+    
+    if (metodoPago === "Transferencia") {
+      alert("Recuerde enviar el comprobante por WhatsApp tan pronto se confirme el pedido.");
+    }
+    
+    if (window.confirm("¿Desea vaciar el carrito?")) {
+      clearCart();
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <motion.div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 w-11/12 max-w-lg h-5/6 overflow-y-auto relative rounded shadow-lg">
         <button 
           onClick={onClose}
@@ -158,35 +185,78 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </div>
                 );
               } else {
-                const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion;
-                return (
-                  <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                    <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
-                    <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                    <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                      <li>Mayonesa: {conMayonesa ? "Sí" : "No"}</li>
-                      <li>Con queso: {conQueso ? "Sí" : "No"}</li>
-                      {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
-                      {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
-                      {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
-                      {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
-                      {observaciones && <li>Observaciones: {observaciones}</li>}
-                    </ul>
-                    <div className="mt-2 flex justify-end">
-                      <button 
-                        onClick={() => removeItem(item.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Eliminar
-                      </button>
+                const personalizacion = item.personalizacion as any;
+                if (personalizacion.tipo === "completo") {
+                  const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = personalizacion;
+                  return (
+                    <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                      <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
+                      <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                      <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                        <li>Mayonesa: {conMayonesa ? "Sí" : "No"}</li>
+                        <li>Con queso: {conQueso ? "Sí" : "No"}</li>
+                        {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
+                        {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
+                        {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
+                        {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
+                        {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
+                      </ul>
+                      <div className="mt-2 flex justify-end">
+                        <button 
+                          onClick={() => removeItem(item.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
+                } else if (personalizacion.tipo === "observaciones") {
+                  return (
+                    <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                      <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
+                      <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                      <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                        {personalizacion.observaciones.trim() && <li>Observaciones: {personalizacion.observaciones}</li>}
+                      </ul>
+                      <div className="mt-2 flex justify-end">
+                        <button 
+                          onClick={() => removeItem(item.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                } else if (personalizacion.tipo === "acompanar") {
+                  const { opcion, dips, observaciones } = personalizacion;
+                  return (
+                    <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                      <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
+                      <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                      <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                        <li>Opción principal: {opcion}</li>
+                        {dips && dips.length > 0 && <li>DIPS: {dips.join(", ")}</li>}
+                        {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
+                      </ul>
+                      <div className="mt-2 flex justify-end">
+                        <button 
+                          onClick={() => removeItem(item.id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return null;
+                }
               }
             })}
           </div>
         )}
-
         {items.length > 0 && (
           <>
             <div className="mt-4 flex flex-col gap-4">
@@ -277,6 +347,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
