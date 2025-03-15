@@ -37,38 +37,36 @@ const AccordionSection = ({
 };
 
 export default function ProductCard({ producto, setPersonalizando }: ProductCardProps) {
-  // Se agrega extrasPrecios para calcular el costo de extras.
+  // Extras y precios
   const extrasPrecios = {
     "Medallón Veggie": 1500,
     "Medallón de Carne": 1700,
-    "Dips de Aderezo": 0, // No se usa precio base, se sumará por cada sub-opción
+    "Dips de Aderezo": 0, // Precio base 0, se suma por sub-opciones
   };
-  const DIP_COST = 400; // Cada sub-opción de DIP cuesta $400
+  const DIP_COST = 400;
 
-  // IDs para distinguir promociones
+  // IDs para promociones
   const promoTipo1Ids = [11, 12, 13, 14];
   const promoTipo2Ids = [7, 8, 9, 10];
   const isPromoTipo1 = promoTipo1Ids.includes(producto.id);
   const isPromoTipo2 = promoTipo2Ids.includes(producto.id);
 
-  // Variables de categoría
+  // Categoría
   const categoria = producto.categoria || "";
   const isParaAcompañar = categoria === "Para acompañar";
   const isAcompañarCustom = isParaAcompañar && producto.id === 24;
-  // Para sandwiches, se mostrarán solo Aderezos, Toppings y Observaciones
-  const isSandwich = categoria.toLowerCase() === "sandwiches";
-  // Para Veggies, si el id es 5 o 16, se mostrarán solo Aderezos, Toppings y Observaciones
-  const isVeggieSimple = categoria === "Veggies" && (producto.id === 5 || producto.id === 16);
-  // Si es Veggies se usan "Medallón Veggie", sino "Medallón de Carne"
+  // Detectamos Sandwiches mediante includes y también los IDs 5 y 16 (Veggie simples)
+  const isSandwich = categoria.toLowerCase().includes("sandwich");
+  const isVeggieSimple = (producto.id === 5 || producto.id === 16);
   const extrasOptionsLocal = categoria === "Veggies" ? ["Medallón Veggie", "Dips de Aderezo"] : ["Medallón de Carne", "Dips de Aderezo"];
-  // En Veggies, en general, se ocultan Extras para ciertos ids (pero en este caso se reemplaza la personalización completa)
-  const hideExtras = categoria === "Veggies" && (producto.id === 5 || producto.id === 16);
+  const hideExtras = isVeggieSimple;
 
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [toppingsGlobales, setToppingsGlobales] = useState<Record<string, number>>({});
   const [precioTotal, setPrecioTotal] = useState(producto.precio);
 
-  // Estados para personalización completa
+  // Estados para personalización completa (para productos que NO sean Sandwiches o Veggie simples)
   const [conMayonesa, setConMayonesa] = useState(false);
   const [conQueso, setConQueso] = useState(false);
   const [tipoQueso, setTipoQueso] = useState("");
@@ -80,7 +78,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       return acc;
     }, {})
   );
-  // Estado para las sub-opciones de DIP de Aderezo
+  // Estado para sub-opciones de DIP
   const [dipAderezoSelections, setDipAderezoSelections] = useState<Record<string, boolean>>({
     "Mayonesa Casera": false,
     "Salsa de la casa": false,
@@ -102,7 +100,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
   );
   const [seleccionesToppings, setSeleccionesToppings] = useState<Record<string, boolean>>({});
 
-  // Estado para la personalización custom de "Para acompañar" (producto id:24)
+  // Personalización para "Para acompañar"
   const [acompañarCustomization, setAcompañarCustomization] = useState(
     isAcompañarCustom
       ? {
@@ -117,22 +115,13 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
   );
 
   const toggleTopping = (topping: string) => {
-    setSeleccionesToppings((prev) => ({
-      ...prev,
-      [topping]: !prev[topping],
-    }));
+    setSeleccionesToppings(prev => ({ ...prev, [topping]: !prev[topping] }));
   };
   const toggleAderezo = (aderezo: string) => {
-    setSeleccionesAderezos((prev) => ({
-      ...prev,
-      [aderezo]: !prev[aderezo],
-    }));
+    setSeleccionesAderezos(prev => ({ ...prev, [aderezo]: !prev[aderezo] }));
   };
   const toggleExtra = (extra: string) => {
-    setSeleccionesExtras((prev) => ({
-      ...prev,
-      [extra]: !prev[extra],
-    }));
+    setSeleccionesExtras(prev => ({ ...prev, [extra]: !prev[extra] }));
   };
 
   useEffect(() => {
@@ -263,39 +252,31 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
           addItem(item);
         }
       } else {
-        if (isVeggieSimple) {
-          // Para Veggies con id 5 o 16, solo se guardan Aderezos, Toppings y Observaciones
+        if (isVeggieSimple || isSandwich) {
+          // Para productos con id 5, 16 (Veggie simples) y Sandwiches: solo se guardan Aderezos, Toppings y Observaciones
           personalizacion = {
-            tipo: "completo",
-            conMayonesa: false,
-            conQueso: false,
-            tipoQueso: "",
+            tipo: "sandwich",
             aderezos: Object.entries(seleccionesAderezos)
               .filter(([_, incluido]) => incluido)
               .map(([a]) => a),
             toppings: Object.entries(seleccionesToppings)
               .filter(([_, incluido]) => incluido)
               .map(([t]) => t),
-            extras: [], // No se usan extras en estos Veggies
-            observaciones,
-          };
-        } else if (isSandwich) {
-          // Para sandwiches, se muestran solo Aderezos, Toppings y Observaciones
-          personalizacion = {
-            tipo: "completo",
-            conMayonesa: false,
-            conQueso: false,
-            tipoQueso: "",
-            aderezos: Object.entries(seleccionesAderezos)
-              .filter(([_, incluido]) => incluido)
-              .map(([a]) => a),
-            toppings: Object.entries(seleccionesToppings)
-              .filter(([_, incluido]) => incluido)
-              .map(([t]) => t),
-            extras: [],
             observaciones,
           };
         } else {
+          const extrasArray: string[] = Object.entries(seleccionesExtras)
+            .filter(([_, incluido]) => incluido)
+            .reduce((acc: string[], [e]) => {
+              if (e === "Dips de Aderezo") {
+                const dipOptions = Object.entries(dipAderezoSelections)
+                  .filter(([option, selected]) => selected)
+                  .map(([option]) => option);
+                return acc.concat(dipOptions);
+              } else {
+                return acc.concat(e);
+              }
+            }, []);
           personalizacion = {
             tipo: "completo",
             conMayonesa,
@@ -307,26 +288,23 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
             toppings: Object.entries(seleccionesToppings)
               .filter(([_, incluido]) => incluido)
               .map(([t]) => t),
-            extras: (categoria === "Veggies" && (producto.id === 5 || producto.id === 16))
-              ? []
-              : Object.entries(seleccionesExtras)
-                  .filter(([_, incluido]) => incluido)
-                  .reduce((acc: string[], [e]) => {
-                    if (e === "Dips de Aderezo") {
-                      return acc;
-                    }
-                    acc.push(e);
-                    return acc;
-                  }, []),
+            extras: extrasArray,
             observaciones,
           };
         }
-        const item = { id: uuidv4(), producto, personalizacion, precio: isVeggieSimple || isSandwich ? producto.precio : precioTotal };
+        const item = {
+          id: uuidv4(),
+          producto,
+          personalizacion,
+          // Para Sandwiches y Veggie simples usamos el precio final (precioTotal)
+          precio: (isVeggieSimple || isSandwich) ? precioTotal : precioTotal,
+        };
         addItem(item);
       }
     }
     setMostrarOpciones(false);
     setPersonalizando(false);
+    setMostrarConfirmacion(true);
   };
 
   return (
@@ -346,7 +324,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       <h2 className="text-2xl font-semibold mt-4">{producto.nombre}</h2>
       <p className="text-gray-700 mt-2">{producto.descripcion}</p>
       <span className="text-black-600 font-bold text-xl block mt-4">
-         ${producto.precio}
+        ${producto.precio}
       </span>
       <button
         onClick={() => {
@@ -834,6 +812,32 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
               className="mt-2 bg-red-500 text-white px-4 py-2 rounded w-full"
             >
               Volver atrás
+            </button>
+          </div>
+        </motion.div>
+      )}
+      {mostrarConfirmacion && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center mx-4">
+            <Image
+              className="mx-auto"
+              src="https://i.ibb.co/bgVxMWhC/confirmation-1152155-960-720.webp" // Coloca aquí el enlace directo de imgbb para la imagen SVG de confirmación
+              alt="Confirmación"
+              width={100}
+              height={100}
+              unoptimized
+            />
+            <p className="mt-4 text-lg font-bold">Producto agregado al carrito correctamente</p>
+            <button
+              onClick={() => setMostrarConfirmacion(false)}
+              className="mt-4 bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              Cerrar
             </button>
           </div>
         </motion.div>

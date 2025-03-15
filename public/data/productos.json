@@ -122,7 +122,7 @@
     "descripcion": "Tostado + papas fritas",
     "precio": 7200,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
-    "categoria": "promociones",
+    "categoria": "Sandwiches",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {
@@ -140,7 +140,7 @@
     "descripcion": "Sandwich clasico + papas fritas",
     "precio": 4890,
     "imagen":"https://i.ibb.co/5gTJRq7M/simple.png",
-    "categoria": "promociones",
+    "categoria": "Sandwiches",
     "aderezos": ["Salsa de la Casa", "Ketchup","Savora" ]
   },
   {

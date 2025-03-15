@@ -22,6 +22,12 @@ export type Personalizacion =
       opcion: string;
       dips: string[];
       observaciones: string;
+    }
+  | {
+      tipo: "sandwich";
+      aderezos: string[];
+      toppings: string[];
+      observaciones: string;
     };
 
 export interface CartItem {
