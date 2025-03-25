@@ -5,7 +5,7 @@ import { useImage } from "../context/ImageContext";
 import { useState, useEffect } from "react";
 import ProductCard1 from "../components/ProductCard1"; // Se cambió a ProductCard1
 import { getProductos } from "../../../lib/API/api";
-import { Producto } from "../../../types/product";
+import { Producto } from "../../../types/Producto";
 
 export default function MesaX() {
   const { imagenPortada } = useImage();

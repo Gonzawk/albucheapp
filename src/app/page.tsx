@@ -5,8 +5,8 @@ import Navbar from '../app/components/Navbar';
 import { useImage } from '../app/context/ImageContext';
 import { useState, useEffect } from 'react';
 import ProductCard from '../app/components/ProductCard';
-import { getProductos } from '../../lib/API/api';
-import { Producto } from '../../types/product';
+// Se elimina la importación de getProductos, ya que haremos la llamada directamente
+import { Producto } from '../../types/Producto';
 import { useCart } from '../app/context/CartContext';
 import CartModal from '../app/components/CartModal';
 import Footer from '../app/components/Footer';
@@ -16,10 +16,19 @@ import SocialMedia from '../app/components/SocialMedia';
 const HORARIO_INICIO = "19:30";
 const HORARIO_FIN = "23:30";
 
+// Define la interfaz de Categoría
+interface Categoria {
+  id: number;
+  nombre: string;
+  key: string;
+  imagen: string;
+}
+
 export default function Inicio() {
   const { imagenPortada } = useImage();
   const [seccionActiva, setSeccionActiva] = useState("inicio");
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
   const [personalizando, setPersonalizando] = useState(false);
   const [menuActivo, setMenuActivo] = useState(false);
@@ -28,44 +37,47 @@ export default function Inicio() {
   const [cartOpen, setCartOpen] = useState(false);
   const { items, clearCart } = useCart();
 
-  useEffect(() => {
-    getProductos().then((data) => setProductos(data));
-  }, []);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // Determinar si el menú está activo según el horario de atención (Argentina UTC-3)
-  // Comentar o eliminar esta función para forzar que el menú siempre esté activo:
-  /*
+  // Cargar productos desde el endpoint
   useEffect(() => {
-    const ahora = new Date();
-    // Convertir la hora actual a la hora de Argentina (UTC-3)
-    const utcHours = ahora.getUTCHours();
-    const horaArgentina = (utcHours + 21) % 24; // Sumar 21 equivale a restar 3 en modulo 24
-    const minutosArgentina = ahora.getUTCMinutes();
-    // Activamos el menú si la hora está entre 19:30 y 23:30
-    if (
-      (horaArgentina === 19 && minutosArgentina >= 30) ||
-      (horaArgentina > 19 && horaArgentina < 23) ||
-      (horaArgentina === 23 && minutosArgentina < 30)
-    ) {
-      setMenuActivo(true);
-    } else {
-      setMenuActivo(false);
+    async function fetchProductos() {
+      try {
+        const res = await fetch(`${apiUrl}/api/Productos`);
+        if (!res.ok) {
+          throw new Error("Error al obtener los productos");
+        }
+        const data: Producto[] = await res.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      }
     }
-  }, []);
-  */
+    fetchProductos();
+  }, [apiUrl]);
+
+  // Traer las categorías desde la API
+  useEffect(() => {
+    async function fetchCategorias() {
+      try {
+        const res = await fetch(`${apiUrl}/api/Categorias`);
+        if (res.ok) {
+          const data: Categoria[] = await res.json();
+          setCategorias(data);
+        }
+      } catch (error) {
+        console.error("Error al obtener las categorías:", error);
+      }
+    }
+    fetchCategorias();
+  }, [apiUrl]);
+
   // Para pruebas, forzamos que el menú esté activo:
   useEffect(() => {
     setMenuActivo(true);
   }, []);
 
-  const categorias = [
-    { nombre: "Promociones", key: "promociones", imagen: "https://i.ibb.co/Nd2gTxFr/3.png" },
-    { nombre: "Hamburguesas", key: "Hamburguesas", imagen: "https://i.ibb.co/TqHL0pP2/Fondo.jpg" },
-    { nombre: "Sandwiches", key: "Sandwiches", imagen: "https://i.ibb.co/Ld51tNj4/lomo.jpg" },
-    { nombre: "Para acompañar", key: "Para acompañar", imagen: "https://i.ibb.co/QvyxHtJP/arosdecebolla.png" },
-    { nombre: "Veggies", key: "Veggies", imagen: "https://i.ibb.co/6JB4sVXp/veggie.png" }
-  ];
-
+  // Filtrar productos según la categoría seleccionada
   const productosFiltrados = categoriaSeleccionada 
     ? productos.filter(p => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()) 
     : [];
@@ -103,9 +115,7 @@ export default function Inicio() {
             <p className="text-xl font-semibold text-gray-800">
               Horario de Atención: Todos los dias. {HORARIO_INICIO}hs a {HORARIO_FIN}hs - ¡Te esperamos!
             </p>
-            
           </div>
-          
         </div>
       )}
 
@@ -176,9 +186,8 @@ export default function Inicio() {
           <>
             <h1 className="text-5xl font-bold mb-6">Contáctanos</h1>
             <p className="text-lg text-gray-700 max-w-2xl mb-8 mx-auto">
-              ¡Estamos aquí para atenderte! Puedes visitarnos, o escribirnos por WhatsApp para cualquier consulta. Tambien podes visitar nuestro perfil de Instagram!
+              ¡Estamos aquí para atenderte! Puedes visitarnos, o escribirnos por WhatsApp para cualquier consulta. También podes visitar nuestro perfil de Instagram!
             </p>
-            {/* Nuevo componente de redes sociales */}
             <div className="mb-4">
               <SocialMedia />
             </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Producto } from "../../../types/product";
+import { Producto } from "../../../types/Producto";
 import { motion } from "framer-motion";
 import toppingsData from "../../../public/data/toppings.json";
 

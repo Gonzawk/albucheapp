@@ -1,4 +1,4 @@
-import { Producto } from '../../types/product';
+import { Producto } from '../../types/Producto';
 
 export async function getProductos(): Promise<Producto[]> {
   if (typeof window === 'undefined') return [];

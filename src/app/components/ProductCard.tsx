@@ -1,18 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Producto } from "../../../types/product";
+import { Producto } from "../../../types/Producto";
+import { Topping } from "../../../types/Topping";
 import { motion } from "framer-motion";
-import toppingsData from "../../../public/data/toppings.json";
 import { useCart, Personalizacion } from "../../app/context/CartContext";
 import { v4 as uuidv4 } from "uuid";
+import { personalizacionConfig, TipoProducto } from "../../app/config/personalizacionConfig";
+import { Extra } from "../../../types/Extra";
+import { Aderezo } from "../../../types/Aderezo";
 
-interface ProductCardProps {
-  producto: Producto;
-  setPersonalizando: (value: boolean) => void;
-}
-
-// Componente para cada sección colapsable
+// Componente de acordeón para cada sección
 const AccordionSection = ({
   title,
   children,
@@ -36,276 +34,283 @@ const AccordionSection = ({
   );
 };
 
-export default function ProductCard({ producto, setPersonalizando }: ProductCardProps) {
-  // Extras y precios
+export default function ProductCard({
+  producto,
+  setPersonalizando,
+}: {
+  producto: Producto;
+  setPersonalizando: (value: boolean) => void;
+}) {
+  // Precios extras
   const extrasPrecios = {
     "Medallón Veggie": 1500,
     "Medallón de Carne": 1700,
-    "Dips de Aderezo": 0, // Precio base 0, se suma por sub-opciones
+    "DIPS": 0, // Debe coincidir con la DB
   };
-  const DIP_COST = 400;
 
-  // IDs para promociones
-  const promoTipo1Ids = [11, 12, 13, 14];
-  const promoTipo2Ids = [7, 8, 9, 10];
-  const isPromoTipo1 = promoTipo1Ids.includes(producto.id);
-  const isPromoTipo2 = promoTipo2Ids.includes(producto.id);
+  const tipo = producto.tipoProducto;
+  const schemaConfig = personalizacionConfig.schemas[tipo];
+  const allowedSections: string[] = schemaConfig ? schemaConfig.allowedSections : [];
 
-  // Categoría
-  const categoria = producto.categoria || "";
-  const isParaAcompañar = categoria === "Para acompañar";
-  const isAcompañarCustom = isParaAcompañar && producto.id === 24;
-  // Detectamos Sandwiches mediante includes y también los IDs 5 y 16 (Veggie simples)
-  const isSandwich = categoria.toLowerCase().includes("sandwich");
-  const isVeggieSimple = (producto.id === 5 || producto.id === 16);
-  const extrasOptionsLocal = categoria === "Veggies" ? ["Medallón Veggie", "Dips de Aderezo"] : ["Medallón de Carne", "Dips de Aderezo"];
-  const hideExtras = isVeggieSimple;
-
-  const [mostrarOpciones, setMostrarOpciones] = useState(false);
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-  const [toppingsGlobales, setToppingsGlobales] = useState<Record<string, number>>({});
-  const [precioTotal, setPrecioTotal] = useState(producto.precio);
-
-  // Estados para personalización completa (para productos que NO sean Sandwiches o Veggie simples)
-  const [conMayonesa, setConMayonesa] = useState(false);
-  const [conQueso, setConQueso] = useState(false);
-  const [tipoQueso, setTipoQueso] = useState("");
-  const cheeseTypes = ["Cheddar", "Tybo", "Azul", "Provolone"];
-
-  const [seleccionesExtras, setSeleccionesExtras] = useState<Record<string, boolean>>(
-    extrasOptionsLocal.reduce((acc: Record<string, boolean>, extra) => {
-      acc[extra] = false;
-      return acc;
-    }, {})
-  );
-  // Estado para sub-opciones de DIP
-  const [dipAderezoSelections, setDipAderezoSelections] = useState<Record<string, boolean>>({
-    "Mayonesa Casera": false,
-    "Salsa de la casa": false,
-    "Savora": false,
-    "Ketchup": false,
-  });
-  const [observaciones, setObservaciones] = useState("");
+  // Cargar datos externos
+  const [toppingsGlobales, setToppingsGlobales] = useState<Topping[]>([]);
+  const [aderezosGlobales, setAderezosGlobales] = useState<string[]>([]);
+  const [extrasGlobales, setExtrasGlobales] = useState<string[]>([]);
+  // Estado para opciones DIP
+  const [dipOptions, setDipOptions] = useState<{ id: number; nombre: string; precio: number }[]>([]);
+  const [seleccionesDips, setSeleccionesDips] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    setToppingsGlobales(toppingsData);
+    async function fetchData() {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      try {
+        const resToppings = await fetch(`${apiUrl}/api/toppings/active`);
+        if (resToppings.ok) {
+          const data: Topping[] = await resToppings.json();
+          setToppingsGlobales(data);
+        }
+      } catch (error) {
+        console.error("Error fetching toppings: ", error);
+      }
+      try {
+        const resAderezos = await fetch(`${apiUrl}/api/aderezos/active`);
+        if (resAderezos.ok) {
+          const data: Aderezo[] = await resAderezos.json();
+          setAderezosGlobales(data.map((a) => a.nombre));
+        }
+      } catch (error) {
+        console.error("Error fetching aderezos: ", error);
+      }
+      try {
+        const resExtras = await fetch(`${apiUrl}/api/extras/active`);
+        if (resExtras.ok) {
+          const data: Extra[] = await resExtras.json();
+          setExtrasGlobales(data.map((e) => e.nombre));
+        }
+      } catch (error) {
+        console.error("Error fetching extras: ", error);
+      }
+    }
+    fetchData();
   }, []);
 
-  const aderezos = producto.aderezos || [];
-  const [seleccionesAderezos, setSeleccionesAderezos] = useState<Record<string, boolean>>(
-    aderezos.reduce((acc: Record<string, boolean>, aderezo: string) => {
-      acc[aderezo] = true;
-      return acc;
-    }, {})
-  );
-  const [seleccionesToppings, setSeleccionesToppings] = useState<Record<string, boolean>>({});
-
-  // Personalización para "Para acompañar"
-  const [acompañarCustomization, setAcompañarCustomization] = useState(
-    isAcompañarCustom
-      ? {
-          opcion: "",
-          seleccionesAderezos: aderezos.reduce((acc: Record<string, boolean>, aderezo: string) => {
-            acc[aderezo] = false;
-            return acc;
-          }, {} as Record<string, boolean>),
-          observaciones: "",
-        }
-      : null
-  );
-
-  const toggleTopping = (topping: string) => {
-    setSeleccionesToppings(prev => ({ ...prev, [topping]: !prev[topping] }));
-  };
-  const toggleAderezo = (aderezo: string) => {
-    setSeleccionesAderezos(prev => ({ ...prev, [aderezo]: !prev[aderezo] }));
-  };
-  const toggleExtra = (extra: string) => {
-    setSeleccionesExtras(prev => ({ ...prev, [extra]: !prev[extra] }));
-  };
-
   useEffect(() => {
-    if (!isPromoTipo1 && !isPromoTipo2) {
-      const costoToppings = Object.entries(seleccionesToppings)
-        .filter(([_, incluido]) => incluido)
-        .reduce((total, [topping]) => total + (toppingsGlobales[topping] || 0), 0);
-      const costoExtras = Object.entries(seleccionesExtras)
-        .filter(([_, incluido]) => incluido)
-        .reduce((total, [extra]) => {
-          if (extra === "Dips de Aderezo") {
-            const countDip = Object.values(dipAderezoSelections).filter(v => v).length;
-            return total + (DIP_COST * countDip);
+    async function fetchDips() {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      try {
+        const resDips = await fetch(`${apiUrl}/api/dips/active`);
+        if (resDips.ok) {
+          const data = await resDips.json();
+          setDipOptions(data);
+          setSeleccionesDips((prev) => {
+            if (Object.keys(prev).length === 0) {
+              return data.reduce((acc: Record<number, boolean>, dip: { id: number; nombre: string; precio: number }) => {
+                acc[dip.id] = false;
+                return acc;
+              }, {});
+            }
+            return prev;
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching dip options: ", error);
+      }
+    }
+    fetchDips();
+  }, []);
+
+  // Estados de personalización para productos que NO son Tipo 2
+  const [personalizacionBasica, setPersonalizacionBasica] = useState({
+    conMayonesa: false,
+    conQueso: false,
+    tipoQueso: "",
+  });
+
+  // Para Tipo 2: dos subproductos
+  const [personalizacionSub1, setPersonalizacionSub1] = useState({
+    conMayonesa: false,
+    conQueso: false,
+    tipoQueso: "",
+    aderezos: [] as string[],
+    observaciones: "",
+  });
+  const [personalizacionSub2, setPersonalizacionSub2] = useState({
+    conMayonesa: false,
+    conQueso: false,
+    tipoQueso: "",
+    aderezos: [] as string[],
+    observaciones: "",
+  });
+
+  // Para secciones generales (aderezos, toppings, extras, observaciones)
+  const [seleccionesAderezos, setSeleccionesAderezos] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (aderezosGlobales.length > 0 && Object.keys(seleccionesAderezos).length === 0) {
+      setSeleccionesAderezos(
+        aderezosGlobales.reduce((acc, aderezo) => {
+          acc[aderezo] = true;
+          return acc;
+        }, {} as Record<string, boolean>)
+      );
+    }
+  }, [aderezosGlobales]);
+  const [seleccionesToppings, setSeleccionesToppings] = useState<Record<number, boolean>>({});
+  const [seleccionesExtras, setSeleccionesExtras] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (extrasGlobales.length > 0 && Object.keys(seleccionesExtras).length === 0) {
+      setSeleccionesExtras(
+        extrasGlobales.reduce((acc, extra) => {
+          acc[extra] = false;
+          return acc;
+        }, {} as Record<string, boolean>)
+      );
+    }
+  }, [extrasGlobales]);
+  const [observaciones, setObservaciones] = useState("");
+  const [opcionPrincipal, setOpcionPrincipal] = useState("");
+  const [tipo6Observaciones, setTipo6Observaciones] = useState("");
+
+  // Calcular precio total: base + costo de toppings + extras + (opciones DIP si corresponde)
+  const [precioTotal, setPrecioTotal] = useState(producto.precio);
+  useEffect(() => {
+    let total = tipo === TipoProducto.Tipo2 ? producto.precio * 2 : producto.precio;
+    if (allowedSections.includes("toppings")) {
+      total += toppingsGlobales.reduce((acc, topping) => {
+        if (seleccionesToppings[topping.id]) {
+          return acc + topping.precio;
+        }
+        return acc;
+      }, 0);
+    }
+    if (allowedSections.includes("extras")) {
+      total += extrasGlobales.reduce((acc, extra) => {
+        if (seleccionesExtras[extra]) {
+          return acc + (extrasPrecios[extra as keyof typeof extrasPrecios] || 0);
+        }
+        return acc;
+      }, 0);
+      if (seleccionesExtras["DIPS"]) {
+        total += dipOptions.reduce((acc, dip) => {
+          if (seleccionesDips[dip.id]) {
+            return acc + dip.precio;
           }
-          return total + (extrasPrecios[extra as keyof typeof extrasPrecios] || 0);
+          return acc;
         }, 0);
-      setPrecioTotal(producto.precio + costoToppings + costoExtras);
+      }
     }
-  }, [seleccionesToppings, seleccionesExtras, dipAderezoSelections, toppingsGlobales, producto.precio, isPromoTipo1, isPromoTipo2]);
-
-  const [promoType1Customizations, setPromoType1Customizations] = useState(
-    isPromoTipo1
-      ? [
-          {
-            conMayonesa: false,
-            conQueso: false,
-            tipoQueso: "",
-            seleccionesAderezos: aderezos.reduce((acc: Record<string, boolean>, a) => {
-              acc[a] = true;
-              return acc;
-            }, {} as Record<string, boolean>),
-            observaciones: "",
-          },
-          {
-            conMayonesa: false,
-            conQueso: false,
-            tipoQueso: "",
-            seleccionesAderezos: aderezos.reduce((acc: Record<string, boolean>, a) => {
-              acc[a] = true;
-              return acc;
-            }, {} as Record<string, boolean>),
-            observaciones: "",
-          },
-        ]
-      : []
-  );
-  const [promoType2Customization, setPromoType2Customization] = useState(
-    isPromoTipo2
-      ? {
-          conMayonesa: false,
-          conQueso: false,
-          tipoQueso: "",
-          seleccionesAderezos: aderezos.reduce((acc: Record<string, boolean>, a) => {
-            acc[a] = true;
-            return acc;
-          }, {} as Record<string, boolean>),
-          seleccionesToppings: {} as Record<string, boolean>,
-          observaciones: "",
-        }
-      : null
-  );
-  const [promoPrecioTotal, setPromoPrecioTotal] = useState(0);
-  useEffect(() => {
-    if (isPromoTipo1) {
-      setPromoPrecioTotal(producto.precio);
-    }
-  }, [isPromoTipo1, producto.precio]);
-  useEffect(() => {
-    if (isPromoTipo2 && promoType2Customization) {
-      setPromoPrecioTotal(producto.precio);
-    }
-  }, [isPromoTipo2, promoType2Customization, producto.precio]);
+    setPrecioTotal(total);
+  }, [
+    producto.precio,
+    tipo,
+    toppingsGlobales,
+    extrasGlobales,
+    seleccionesToppings,
+    seleccionesExtras,
+    dipOptions,
+    seleccionesDips,
+    allowedSections,
+  ]);
 
   const { addItem } = useCart();
 
   const agregarAlCarrito = () => {
     let personalizacion: Personalizacion;
-    if (isPromoTipo1) {
+    if (tipo === TipoProducto.Tipo2) {
       personalizacion = {
-        tipo: "completo",
+        tipo: TipoProducto.Tipo2,
+        subproducto1: personalizacionSub1,
+        subproducto2: personalizacionSub2,
+      };
+    } else if (tipo === TipoProducto.Tipo1) {
+      personalizacion = {
+        tipo: TipoProducto.Tipo1,
+        personalizacion: personalizacionBasica,
+        toppings: Object.entries(seleccionesToppings)
+  .filter(([_, incluido]) => incluido)
+  .map(([id]) => {
+    const topping = toppingsGlobales.find(t => t.id === parseInt(id));
+    return topping
+      ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
+      : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
+  }),
+        aderezos: Object.entries(seleccionesAderezos)
+          .filter(([_, incluido]) => incluido)
+          .map(([key]) => key),
+        observaciones: allowedSections.includes("observaciones") ? observaciones : "",
+      };
+    } else if (tipo === TipoProducto.Tipo3) {
+      personalizacion = {
+        tipo: TipoProducto.Tipo3,
+        conMayonesa: personalizacionBasica.conMayonesa,
+        conQueso: personalizacionBasica.conQueso,
+        tipoQueso: personalizacionBasica.tipoQueso,
+        toppings: Object.entries(seleccionesToppings)
+  .filter(([_, incluido]) => incluido)
+  .map(([id]) => {
+    const topping = toppingsGlobales.find(t => t.id === parseInt(id));
+    return topping
+      ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
+      : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
+  }),
+        aderezos: Object.entries(seleccionesAderezos)
+          .filter(([_, incluido]) => incluido)
+          .map(([key]) => key),
+        extras: allowedSections.includes("extras")
+          ? Object.entries(seleccionesExtras)
+              .filter(([_, incluido]) => incluido)
+              .map(([key]) => key)
+          : [],
+        observaciones: allowedSections.includes("observaciones") ? observaciones : "",
+      };
+    } else if (tipo === TipoProducto.Tipo4) {
+      personalizacion = {
+        tipo: TipoProducto.Tipo4,
+        aderezos: Object.entries(seleccionesAderezos)
+          .filter(([_, incluido]) => incluido)
+          .map(([key]) => key),
+          toppings: Object.entries(seleccionesToppings)
+          .filter(([_, incluido]) => incluido)
+          .map(([id]) => {
+            const topping = toppingsGlobales.find(t => t.id === parseInt(id));
+            return topping
+              ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
+              : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
+          }),
+        observaciones: allowedSections.includes("observaciones") ? observaciones : "",
+      };
+    } else if (tipo === TipoProducto.Tipo5 || tipo === TipoProducto.Tipo6) {
+      personalizacion = {
+        tipo: tipo,
+        observaciones: allowedSections.includes("observaciones") ? observaciones : "",
+      };
+    } else {
+      // Fallback
+      personalizacion = {
+        tipo: tipo,
         conMayonesa: false,
         conQueso: false,
         tipoQueso: "",
         aderezos: [],
         toppings: [],
         extras: [],
-        observaciones: JSON.stringify(promoType1Customizations),
-        hamburguesas: promoType1Customizations,
+        observaciones: "",
       };
-      const item = { id: uuidv4(), producto, personalizacion, precio: producto.precio };
-      addItem(item);
-    } else if (isPromoTipo2 && promoType2Customization) {
-      personalizacion = {
-        tipo: "completo",
-        conMayonesa: promoType2Customization.conMayonesa,
-        conQueso: promoType2Customization.conQueso,
-        tipoQueso: promoType2Customization.tipoQueso,
-        aderezos: Object.entries(promoType2Customization.seleccionesAderezos)
-          .filter(([_, included]) => included)
-          .map(([a]) => a),
-        toppings: Object.entries(promoType2Customization.seleccionesToppings)
-          .filter(([_, included]) => included)
-          .map(([t]) => t),
-        extras: [],
-        observaciones: promoType2Customization.observaciones,
-      };
-      const item = { id: uuidv4(), producto, personalizacion, precio: producto.precio };
-      addItem(item);
-    } else {
-      if (producto.categoria === "Para acompañar") {
-        if (isAcompañarCustom && acompañarCustomization) {
-          personalizacion = {
-            tipo: "acompanar",
-            opcion: acompañarCustomization.opcion,
-            dips: Object.entries(acompañarCustomization.seleccionesAderezos)
-              .filter(([_, incluido]) => incluido)
-              .map(([a]) => a),
-            observaciones: acompañarCustomization.observaciones,
-          };
-          const item = { id: uuidv4(), producto, personalizacion, precio: producto.precio };
-          addItem(item);
-        } else {
-          personalizacion = {
-            tipo: "observaciones",
-            observaciones,
-          };
-          const item = { id: uuidv4(), producto, personalizacion, precio: producto.precio };
-          addItem(item);
-        }
-      } else {
-        if (isVeggieSimple || isSandwich) {
-          // Para productos con id 5, 16 (Veggie simples) y Sandwiches: solo se guardan Aderezos, Toppings y Observaciones
-          personalizacion = {
-            tipo: "sandwich",
-            aderezos: Object.entries(seleccionesAderezos)
-              .filter(([_, incluido]) => incluido)
-              .map(([a]) => a),
-            toppings: Object.entries(seleccionesToppings)
-              .filter(([_, incluido]) => incluido)
-              .map(([t]) => t),
-            observaciones,
-          };
-        } else {
-          const extrasArray: string[] = Object.entries(seleccionesExtras)
-            .filter(([_, incluido]) => incluido)
-            .reduce((acc: string[], [e]) => {
-              if (e === "Dips de Aderezo") {
-                const dipOptions = Object.entries(dipAderezoSelections)
-                  .filter(([option, selected]) => selected)
-                  .map(([option]) => option);
-                return acc.concat(dipOptions);
-              } else {
-                return acc.concat(e);
-              }
-            }, []);
-          personalizacion = {
-            tipo: "completo",
-            conMayonesa,
-            conQueso,
-            tipoQueso,
-            aderezos: Object.entries(seleccionesAderezos)
-              .filter(([_, incluido]) => incluido)
-              .map(([a]) => a),
-            toppings: Object.entries(seleccionesToppings)
-              .filter(([_, incluido]) => incluido)
-              .map(([t]) => t),
-            extras: extrasArray,
-            observaciones,
-          };
-        }
-        const item = {
-          id: uuidv4(),
-          producto,
-          personalizacion,
-          // Para Sandwiches y Veggie simples usamos el precio final (precioTotal)
-          precio: (isVeggieSimple || isSandwich) ? precioTotal : precioTotal,
-        };
-        addItem(item);
-      }
     }
-    setMostrarOpciones(false);
+
+    const item = {
+      id: uuidv4(),
+      producto,
+      personalizacion,
+      precio: precioTotal,
+    };
+    addItem(item);
     setPersonalizando(false);
+    setMostrarOpciones(false);
     setMostrarConfirmacion(true);
   };
+
+  const [mostrarOpciones, setMostrarOpciones] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   return (
     <div className="bg-white p-6 shadow-lg rounded-lg text-center relative w-80 min-h-[450px] flex flex-col justify-between">
@@ -323,9 +328,7 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
       </div>
       <h2 className="text-2xl font-semibold mt-4">{producto.nombre}</h2>
       <p className="text-gray-700 mt-2">{producto.descripcion}</p>
-      <span className="text-black-600 font-bold text-xl block mt-4">
-        ${producto.precio}
-      </span>
+      <span className="text-black-600 font-bold text-xl block mt-4">${producto.precio}</span>
       <button
         onClick={() => {
           setMostrarOpciones(true);
@@ -342,103 +345,23 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
           exit={{ opacity: 0, scale: 0.8 }}
           className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
         >
-          {/* Modal scrollable */}
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md text-center max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-semibold mb-4">{producto.nombre}</h3>
-            {isPromoTipo1 ? (
-              [0, 1].map((i) => (
-                <div key={i} className="border p-4 mb-4 rounded">
-                  <h4 className="font-bold mb-2">Hamburguesa {i + 1}</h4>
-                  <AccordionSection title="Personalización">
-                    <label className="block">
-                      <input
-                        type="checkbox"
-                        checked={promoType1Customizations[i].conMayonesa}
-                        onChange={(e) => {
-                          const newPromo = [...promoType1Customizations];
-                          newPromo[i].conMayonesa = e.target.checked;
-                          setPromoType1Customizations(newPromo);
-                        }}
-                        className="mr-2"
-                      />
-                      Mayonesa casera
-                    </label>
-                    <label className="block">
-                      <input
-                        type="checkbox"
-                        checked={promoType1Customizations[i].conQueso}
-                        onChange={(e) => {
-                          const newPromo = [...promoType1Customizations];
-                          newPromo[i].conQueso = e.target.checked;
-                          setPromoType1Customizations(newPromo);
-                        }}
-                        className="mr-2"
-                      />
-                      Con queso
-                    </label>
-                    {promoType1Customizations[i].conQueso && (
-                      <select
-                        value={promoType1Customizations[i].tipoQueso}
-                        onChange={(e) => {
-                          const newPromo = [...promoType1Customizations];
-                          newPromo[i].tipoQueso = e.target.value;
-                          setPromoType1Customizations(newPromo);
-                        }}
-                        className="mt-2 p-2 border rounded"
-                      >
-                        <option value="">Selecciona el tipo de queso</option>
-                        {cheeseTypes.map((cheese) => (
-                          <option key={cheese} value={cheese}>
-                            {cheese}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </AccordionSection>
-                  <AccordionSection title="Aderezos">
-                    {aderezos.map((aderezo) => (
-                      <label key={aderezo} className="block">
-                        <input
-                          type="checkbox"
-                          checked={promoType1Customizations[i].seleccionesAderezos[aderezo]}
-                          onChange={(e) => {
-                            const newPromo = [...promoType1Customizations];
-                            newPromo[i].seleccionesAderezos[aderezo] = e.target.checked;
-                            setPromoType1Customizations(newPromo);
-                          }}
-                          className="mr-2"
-                        />
-                        {aderezo}
-                      </label>
-                    ))}
-                  </AccordionSection>
-                  <AccordionSection title="Observaciones">
-                    <textarea
-                      value={promoType1Customizations[i].observaciones}
-                      onChange={(e) => {
-                        const newPromo = [...promoType1Customizations];
-                        newPromo[i].observaciones = e.target.value;
-                        setPromoType1Customizations(newPromo);
-                      }}
-                      placeholder="Observaciones..."
-                      className="w-full p-2 border rounded"
-                      rows={3}
-                    ></textarea>
-                  </AccordionSection>
-                </div>
-              ))
-            ) : isPromoTipo2 && promoType2Customization ? (
+            <h3 className="text-2xl font-semibold mb-4">
+              {producto.nombre} - Personalización
+            </h3>
+            {tipo === TipoProducto.Tipo2 ? (
               <>
+                <h4 className="text-xl font-bold mb-2">Producto 1</h4>
                 <AccordionSection title="Personalización">
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={promoType2Customization.conMayonesa}
+                      checked={personalizacionSub1.conMayonesa}
                       onChange={(e) =>
-                        setPromoType2Customization({
-                          ...promoType2Customization,
+                        setPersonalizacionSub1((prev) => ({
+                          ...prev,
                           conMayonesa: e.target.checked,
-                        })
+                        }))
                       }
                       className="mr-2"
                     />
@@ -447,30 +370,30 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
                   <label className="block">
                     <input
                       type="checkbox"
-                      checked={promoType2Customization.conQueso}
+                      checked={personalizacionSub1.conQueso}
                       onChange={(e) =>
-                        setPromoType2Customization({
-                          ...promoType2Customization,
+                        setPersonalizacionSub1((prev) => ({
+                          ...prev,
                           conQueso: e.target.checked,
-                        })
+                        }))
                       }
                       className="mr-2"
                     />
                     Con queso
                   </label>
-                  {promoType2Customization.conQueso && (
+                  {personalizacionSub1.conQueso && (
                     <select
-                      value={promoType2Customization.tipoQueso}
+                      value={personalizacionSub1.tipoQueso}
                       onChange={(e) =>
-                        setPromoType2Customization({
-                          ...promoType2Customization,
+                        setPersonalizacionSub1((prev) => ({
+                          ...prev,
                           tipoQueso: e.target.value,
-                        })
+                        }))
                       }
                       className="mt-2 p-2 border rounded"
                     >
                       <option value="">Selecciona el tipo de queso</option>
-                      {cheeseTypes.map((cheese) => (
+                      {["Cheddar", "Tybo", "Azul", "Provolone"].map((cheese) => (
                         <option key={cheese} value={cheese}>
                           {cheese}
                         </option>
@@ -479,331 +402,317 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
                   )}
                 </AccordionSection>
                 <AccordionSection title="Aderezos">
-                  {aderezos.map((aderezo) => (
+                  {aderezosGlobales.map((aderezo) => (
                     <label key={aderezo} className="block">
                       <input
                         type="checkbox"
-                        checked={promoType2Customization.seleccionesAderezos[aderezo]}
-                        onChange={(e) =>
-                          setPromoType2Customization({
-                            ...promoType2Customization,
-                            seleccionesAderezos: {
-                              ...promoType2Customization.seleccionesAderezos,
-                              [aderezo]: e.target.checked,
-                            },
-                          })
-                        }
+                        checked={personalizacionSub1.aderezos.includes(aderezo)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setPersonalizacionSub1((prev) => ({
+                              ...prev,
+                              aderezos: [...prev.aderezos, aderezo],
+                            }));
+                          } else {
+                            setPersonalizacionSub1((prev) => ({
+                              ...prev,
+                              aderezos: prev.aderezos.filter((a) => a !== aderezo),
+                            }));
+                          }
+                        }}
                         className="mr-2"
                       />
                       {aderezo}
                     </label>
                   ))}
                 </AccordionSection>
-                <AccordionSection title="Toppings">
-                  <p className="text-sm text-gray-600 mb-2">(Máximo 2)</p>
-                  {Object.keys(toppingsGlobales).map((topping) => {
-                    const currentCount = Object.values(promoType2Customization.seleccionesToppings).filter(Boolean).length;
-                    const isChecked = promoType2Customization.seleccionesToppings[topping] || false;
-                    return (
-                      <label key={topping} className="block">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => {
-                            const newValue = e.target.checked;
-                            if (newValue && currentCount >= 2) return;
-                            setPromoType2Customization({
-                              ...promoType2Customization,
-                              seleccionesToppings: {
-                                ...promoType2Customization.seleccionesToppings,
-                                [topping]: newValue,
-                              },
-                            });
-                          }}
-                          className="mr-2"
-                        />
-                        {topping} (+${toppingsGlobales[topping]})
-                      </label>
-                    );
-                  })}
+                <AccordionSection title="Observaciones">
+                  <textarea
+                    value={personalizacionSub1.observaciones}
+                    onChange={(e) =>
+                      setPersonalizacionSub1((prev) => ({
+                        ...prev,
+                        observaciones: e.target.value,
+                      }))
+                    }
+                    placeholder="Observaciones..."
+                    className="w-full p-2 border rounded mt-2"
+                    rows={2}
+                  ></textarea>
+                </AccordionSection>
+
+                <h4 className="text-xl font-bold mt-4 mb-2">Producto 2</h4>
+                <AccordionSection title="Personalización">
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={personalizacionSub2.conMayonesa}
+                      onChange={(e) =>
+                        setPersonalizacionSub2((prev) => ({
+                          ...prev,
+                          conMayonesa: e.target.checked,
+                        }))
+                      }
+                      className="mr-2"
+                    />
+                    Mayonesa casera
+                  </label>
+                  <label className="block">
+                    <input
+                      type="checkbox"
+                      checked={personalizacionSub2.conQueso}
+                      onChange={(e) =>
+                        setPersonalizacionSub2((prev) => ({
+                          ...prev,
+                          conQueso: e.target.checked,
+                        }))
+                      }
+                      className="mr-2"
+                    />
+                    Con queso
+                  </label>
+                  {personalizacionSub2.conQueso && (
+                    <select
+                      value={personalizacionSub2.tipoQueso}
+                      onChange={(e) =>
+                        setPersonalizacionSub2((prev) => ({
+                          ...prev,
+                          tipoQueso: e.target.value,
+                        }))
+                      }
+                      className="mt-2 p-2 border rounded"
+                    >
+                      <option value="">Selecciona el tipo de queso</option>
+                      {["Cheddar", "Tybo", "Azul", "Provolone"].map((cheese) => (
+                        <option key={cheese} value={cheese}>
+                          {cheese}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </AccordionSection>
+                <AccordionSection title="Aderezos">
+                  {aderezosGlobales.map((aderezo) => (
+                    <label key={aderezo} className="block">
+                      <input
+                        type="checkbox"
+                        checked={personalizacionSub2.aderezos.includes(aderezo)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setPersonalizacionSub2((prev) => ({
+                              ...prev,
+                              aderezos: [...prev.aderezos, aderezo],
+                            }));
+                          } else {
+                            setPersonalizacionSub2((prev) => ({
+                              ...prev,
+                              aderezos: prev.aderezos.filter((a) => a !== aderezo),
+                            }));
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      {aderezo}
+                    </label>
+                  ))}
                 </AccordionSection>
                 <AccordionSection title="Observaciones">
                   <textarea
-                    value={promoType2Customization.observaciones}
+                    value={personalizacionSub2.observaciones}
                     onChange={(e) =>
-                      setPromoType2Customization({
-                        ...promoType2Customization,
+                      setPersonalizacionSub2((prev) => ({
+                        ...prev,
                         observaciones: e.target.value,
-                      })
+                      }))
                     }
                     placeholder="Observaciones..."
-                    className="w-full p-2 border rounded"
-                    rows={3}
+                    className="w-full p-2 border rounded mt-2"
+                    rows={2}
                   ></textarea>
                 </AccordionSection>
               </>
             ) : (
               <>
-                {isParaAcompañar ? (
-                  producto.id === 24 && acompañarCustomization ? (
-                    <>
-                      <AccordionSection title="Principal">
-                        <label className="block">
-                          <input
-                            type="radio"
-                            name="acompanamiento"
-                            value="Nuggets de Pollo"
-                            checked={acompañarCustomization.opcion === "Nuggets de Pollo"}
-                            onChange={(e) =>
-                              setAcompañarCustomization({
-                                ...acompañarCustomization,
-                                opcion: e.target.value,
-                              })
-                            }
-                            className="mr-2"
-                          />
-                          Nuggets de Pollo
-                        </label>
-                        <label className="block">
-                          <input
-                            type="radio"
-                            name="acompanamiento"
-                            value="Aros de Cebolla"
-                            checked={acompañarCustomization.opcion === "Aros de Cebolla"}
-                            onChange={(e) =>
-                              setAcompañarCustomization({
-                                ...acompañarCustomization,
-                                opcion: e.target.value,
-                              })
-                            }
-                            className="mr-2"
-                          />
-                          Aros de Cebolla
-                        </label>
-                      </AccordionSection>
-                      <AccordionSection title="DIPS (2 Dos)">
-                        {aderezos.map((aderezo) => {
-                          const currentCount = Object.values(acompañarCustomization.seleccionesAderezos).filter(Boolean).length;
-                          const isChecked = acompañarCustomization.seleccionesAderezos[aderezo] || false;
-                          return (
-                            <label key={aderezo} className="block">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={(e) => {
-                                  const newValue = e.target.checked;
-                                  if (newValue && currentCount >= 2) return;
-                                  setAcompañarCustomization({
-                                    ...acompañarCustomization,
-                                    seleccionesAderezos: {
-                                      ...acompañarCustomization.seleccionesAderezos,
-                                      [aderezo]: newValue,
-                                    },
-                                  });
-                                }}
-                                className="mr-2"
-                              />
-                              {aderezo}
-                            </label>
-                          );
-                        })}
-                      </AccordionSection>
-                      <AccordionSection title="Observaciones">
-                        <textarea
-                          value={acompañarCustomization.observaciones}
-                          onChange={(e) =>
-                            setAcompañarCustomization({
-                              ...acompañarCustomization,
-                              observaciones: e.target.value,
-                            })
-                          }
-                          placeholder="Ingrese alguna observación..."
-                          className="w-full p-2 border rounded"
-                          rows={3}
-                        ></textarea>
-                      </AccordionSection>
-                    </>
-                  ) : (
-                    <AccordionSection title="Observaciones">
-                      <textarea
-                        value={observaciones}
-                        onChange={(e) => setObservaciones(e.target.value)}
-                        placeholder="Ingrese alguna observación...(sin sal, etc)"
-                        className="w-full p-2 border rounded"
-                        rows={3}
-                      ></textarea>
-                    </AccordionSection>
-                  )
-                ) : isSandwich || isVeggieSimple ? (
-                  <>
-                    <AccordionSection title="Aderezos">
-                      {aderezos.map((aderezo) => (
-                        <label key={aderezo} className="block">
-                          <input
-                            type="checkbox"
-                            checked={seleccionesAderezos[aderezo]}
-                            onChange={() => toggleAderezo(aderezo)}
-                            className="mr-2"
-                          />
-                          {aderezo}
-                        </label>
-                      ))}
-                    </AccordionSection>
-                    <AccordionSection title="Toppings">
-                      {Object.keys(toppingsGlobales).map((topping) => (
-                        <label key={topping} className="block">
-                          <input
-                            type="checkbox"
-                            checked={seleccionesToppings[topping] || false}
-                            onChange={() => toggleTopping(topping)}
-                            className="mr-2"
-                          />
-                          {topping} (+${toppingsGlobales[topping]})
-                        </label>
-                      ))}
-                    </AccordionSection>
-                    <AccordionSection title="Observaciones">
-                      <textarea
-                        value={observaciones}
-                        onChange={(e) => setObservaciones(e.target.value)}
-                        placeholder="Ingrese alguna observación...(sin sal, etc)"
-                        className="w-full p-2 border rounded"
-                        rows={3}
-                      ></textarea>
-                    </AccordionSection>
-                  </>
-                ) : (
-                  <>
-                    <AccordionSection title="Personalización">
-                      <label className="block">
-                        <input
-                          type="checkbox"
-                          checked={conMayonesa}
-                          onChange={() => setConMayonesa(!conMayonesa)}
-                          className="mr-2"
-                        />
-                        Mayonesa casera
-                      </label>
-                      <label className="block">
-                        <input
-                          type="checkbox"
-                          checked={conQueso}
-                          onChange={() => setConQueso(!conQueso)}
-                          className="mr-2"
-                        />
-                        Con queso
-                      </label>
-                      {conQueso && (
-                        <select
-                          value={tipoQueso}
-                          onChange={(e) => setTipoQueso(e.target.value)}
-                          className="mt-2 p-2 border rounded"
-                        >
-                          <option value="">Selecciona el tipo de queso</option>
-                          {cheeseTypes.map((cheese) => (
-                            <option key={cheese} value={cheese}>
-                              {cheese}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </AccordionSection>
-                    <AccordionSection title="Aderezos">
-                      {aderezos.map((aderezo) => (
-                        <label key={aderezo} className="block">
-                          <input
-                            type="checkbox"
-                            checked={seleccionesAderezos[aderezo]}
-                            onChange={() => toggleAderezo(aderezo)}
-                            className="mr-2"
-                          />
-                          {aderezo}
-                        </label>
-                      ))}
-                    </AccordionSection>
-                    <AccordionSection title="Toppings">
-                      {Object.keys(toppingsGlobales).map((topping) => (
-                        <label key={topping} className="block">
-                          <input
-                            type="checkbox"
-                            checked={seleccionesToppings[topping] || false}
-                            onChange={() => toggleTopping(topping)}
-                            className="mr-2"
-                          />
-                          {topping} (+${toppingsGlobales[topping]})
-                        </label>
-                      ))}
-                    </AccordionSection>
-                    {!hideExtras && (
-                      <AccordionSection title="Extras">
-                        {extrasOptionsLocal.map((extra) => (
-                          <label key={extra} className="block">
-                            <input
-                              type="checkbox"
-                              checked={seleccionesExtras[extra]}
-                              onChange={() => toggleExtra(extra)}
-                              className="mr-2"
-                            />
-                            {extra} {extra !== "Dips de Aderezo" && `(+${extrasPrecios[extra as keyof typeof extrasPrecios]})`}
-                          </label>
+                {allowedSections.includes("personalizacion") && (
+                  <AccordionSection title="Personalización">
+                    <p className="text-sm">(Opciones básicas de personalización)</p>
+                    <label className="block">
+                      <input
+                        type="checkbox"
+                        checked={personalizacionBasica.conMayonesa}
+                        onChange={(e) =>
+                          setPersonalizacionBasica((prev) => ({
+                            ...prev,
+                            conMayonesa: e.target.checked,
+                          }))
+                        }
+                        className="mr-2"
+                      />
+                      Mayonesa casera
+                    </label>
+                    <label className="block">
+                      <input
+                        type="checkbox"
+                        checked={personalizacionBasica.conQueso}
+                        onChange={(e) =>
+                          setPersonalizacionBasica((prev) => ({
+                            ...prev,
+                            conQueso: e.target.checked,
+                          }))
+                        }
+                        className="mr-2"
+                      />
+                      Con queso
+                    </label>
+                    {personalizacionBasica.conQueso && (
+                      <select
+                        value={personalizacionBasica.tipoQueso}
+                        onChange={(e) =>
+                          setPersonalizacionBasica((prev) => ({
+                            ...prev,
+                            tipoQueso: e.target.value,
+                          }))
+                        }
+                        className="mt-2 p-2 border rounded"
+                      >
+                        <option value="">Selecciona el tipo de queso</option>
+                        {["Cheddar", "Tybo", "Azul", "Provolone"].map((cheese) => (
+                          <option key={cheese} value={cheese}>
+                            {cheese}
+                          </option>
                         ))}
-                        {seleccionesExtras["Dips de Aderezo"] && (
-                          <AccordionSection title="Selecciona DIP de Aderezo" defaultOpen={true}>
-                            {Object.keys(dipAderezoSelections).map(option => (
-                              <label key={option} className="block">
+                      </select>
+                    )}
+                  </AccordionSection>
+                )}
+                {allowedSections.includes("aderezos") && (
+                  <AccordionSection title="Aderezos">
+                    {aderezosGlobales.map((aderezo) => (
+                      <label key={aderezo} className="block">
+                        <input
+                          type="checkbox"
+                          checked={seleccionesAderezos[aderezo] || false}
+                          onChange={() =>
+                            setSeleccionesAderezos((prev) => ({
+                              ...prev,
+                              [aderezo]: !prev[aderezo],
+                            }))
+                          }
+                          className="mr-2"
+                        />
+                        {aderezo}
+                      </label>
+                    ))}
+                  </AccordionSection>
+                )}
+                {allowedSections.includes("toppings") && (
+                  <AccordionSection title="Toppings (Máximo 2)">
+                    {toppingsGlobales.map((topping) => (
+                      <label key={topping.id} className="block">
+                        <input
+                          type="checkbox"
+                          checked={seleccionesToppings[topping.id] || false}
+                          onChange={() =>
+                            setSeleccionesToppings((prev) => ({
+                              ...prev,
+                              [topping.id]: !prev[topping.id],
+                            }))
+                          }
+                          className="mr-2"
+                        />
+                        {topping.nombre} (+${topping.precio})
+                      </label>
+                    ))}
+                  </AccordionSection>
+                )}
+                {allowedSections.includes("extras") && (
+                  <AccordionSection title="Extras">
+                    {extrasGlobales.map((extra) => (
+                      <div key={extra}>
+                        <label className="block">
+                          <input
+                            type="checkbox"
+                            checked={seleccionesExtras[extra] || false}
+                            onChange={() =>
+                              setSeleccionesExtras((prev) => ({
+                                ...prev,
+                                [extra]: !prev[extra],
+                              }))
+                            }
+                            className="mr-2"
+                          />
+                          {extra} {extra !== "DIPS" && `(+${extrasPrecios[extra as keyof typeof extrasPrecios] || 0})`}
+                        </label>
+                        {extra === "DIPS" && seleccionesExtras[extra] && (
+                          <AccordionSection title="Opciones DIPS" defaultOpen={false}>
+                            {dipOptions.map((dip) => (
+                              <label key={dip.id} className="block">
                                 <input
                                   type="checkbox"
-                                  checked={dipAderezoSelections[option]}
+                                  checked={seleccionesDips[dip.id] || false}
                                   onChange={() =>
-                                    setDipAderezoSelections(prev => ({ ...prev, [option]: !prev[option] }))
+                                    setSeleccionesDips((prev) => ({
+                                      ...prev,
+                                      [dip.id]: !prev[dip.id],
+                                    }))
                                   }
                                   className="mr-2"
                                 />
-                                {option} (+${DIP_COST})
+                                {dip.nombre} (+${dip.precio})
                               </label>
                             ))}
                           </AccordionSection>
                         )}
-                      </AccordionSection>
-                    )}
-                    <AccordionSection title="Observaciones">
-                      <textarea
-                        value={observaciones}
-                        onChange={(e) => setObservaciones(e.target.value)}
-                        placeholder="Ingrese alguna observación...(sin sal, etc)"
-                        className="w-full p-2 border rounded"
-                        rows={3}
-                      ></textarea>
-                    </AccordionSection>
-                  </>
+                      </div>
+                    ))}
+                  </AccordionSection>
+                )}
+                {allowedSections.includes("observaciones") && (
+                  <AccordionSection title="Observaciones">
+                    <textarea
+                      value={observaciones}
+                      onChange={(e) => setObservaciones(e.target.value)}
+                      placeholder="Ingrese observaciones..."
+                      className="w-full p-2 border rounded"
+                      rows={3}
+                    ></textarea>
+                  </AccordionSection>
+                )}
+                {allowedSections.includes("opcion") && (
+                  <AccordionSection title="Principal">
+                    <label className="block">
+                      <input
+                        type="radio"
+                        name="acompanamiento"
+                        value="Nuggets de Pollo"
+                        checked={opcionPrincipal === "Nuggets de Pollo"}
+                        onChange={(e) => setOpcionPrincipal(e.target.value)}
+                        className="mr-2"
+                      />
+                      Nuggets de Pollo
+                    </label>
+                    <label className="block">
+                      <input
+                        type="radio"
+                        name="acompanamiento"
+                        value="Aros de Cebolla"
+                        checked={opcionPrincipal === "Aros de Cebolla"}
+                        onChange={(e) => setOpcionPrincipal(e.target.value)}
+                        className="mr-2"
+                      />
+                      Aros de Cebolla
+                    </label>
+                  </AccordionSection>
                 )}
               </>
             )}
-            <p className="text-lg font-bold mt-4">
-              Total: ${isPromoTipo1 || isPromoTipo2 ? promoPrecioTotal : precioTotal}
-            </p>
-            {isPromoTipo1 ? (
-              <button
-                onClick={agregarAlCarrito}
-                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-              >
-                Agregar Promo (2 unidades) al Carrito
-              </button>
-            ) : isPromoTipo2 ? (
-              <button
-                onClick={agregarAlCarrito}
-                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-              >
-                Agregar Promo al Carrito
-              </button>
-            ) : (
-              <button
-                onClick={agregarAlCarrito}
-                className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
-              >
-                Agregar al Carrito
-              </button>
-            )}
+            <p className="text-lg font-bold mt-4">Total: ${precioTotal}</p>
+            <button
+              onClick={agregarAlCarrito}
+              className="mt-4 bg-blue-700 text-white px-4 py-2 rounded w-full"
+            >
+              Agregar al Carrito
+            </button>
             <button
               onClick={() => {
                 setMostrarOpciones(false);
@@ -826,13 +735,15 @@ export default function ProductCard({ producto, setPersonalizando }: ProductCard
           <div className="bg-white p-6 rounded-lg shadow-lg text-center mx-4">
             <Image
               className="mx-auto"
-              src="https://i.ibb.co/bgVxMWhC/confirmation-1152155-960-720.webp" // Coloca aquí el enlace directo de imgbb para la imagen SVG de confirmación
+              src="https://i.ibb.co/bgVxMWhC/confirmation-1152155-960-720.webp"
               alt="Confirmación"
               width={100}
               height={100}
               unoptimized
             />
-            <p className="mt-4 text-lg font-bold">Producto agregado al carrito correctamente</p>
+            <p className="mt-4 text-lg font-bold">
+              Producto agregado al carrito correctamente
+            </p>
             <button
               onClick={() => setMostrarConfirmacion(false)}
               className="mt-4 bg-blue-700 text-white px-4 py-2 rounded"

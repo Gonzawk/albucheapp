@@ -3,6 +3,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
+import { Pedido } from "../../../types/Pedido";
+import { TipoProducto } from "../config/personalizacionConfig";
 
 interface CartModalProps {
   isOpen: boolean;
@@ -24,83 +26,157 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
   const totalCarrito = items.reduce((sum, item) => sum + item.precio, 0);
 
-  const generarPedido = () => {
+  const generarPedido = async () => {
     let mensaje = "NUEVO PEDIDO!\n\n";
     if (nombreCliente.trim()) {
       mensaje += `Nombre del Cliente: ${nombreCliente}\n\n`;
     }
     items.forEach(item => {
-      if ("hamburguesas" in item.personalizacion) {
-        mensaje += `🍔 *${item.producto.nombre} (Promo)* 🍔\n\n`;
-        (item.personalizacion as any).hamburguesas.forEach((prod: any, index: number) => {
-          mensaje += `*Producto ${index + 1}:*\n`;
-          mensaje += `Mayonesa: ${prod.conMayonesa ? "Sí" : "No"}\n`;
-          mensaje += `Con queso: ${prod.conQueso ? "Sí" : "No"}\n`;
-          if (prod.conQueso && prod.tipoQueso) {
-            mensaje += `Tipo de queso: ${prod.tipoQueso}\n`;
+      switch (item.personalizacion.tipo) {
+        case TipoProducto.Tipo1: {
+          const p = item.personalizacion as {
+            tipo: TipoProducto.Tipo1;
+            personalizacion: {
+              conMayonesa: boolean;
+              conQueso: boolean;
+              tipoQueso: string;
+            };
+            // Toppings ahora es un array de objetos con id, nombre y precio
+            toppings: { id: number; nombre: string; precio: number }[];
+            aderezos?: string[];
+            observaciones?: string;
+          };
+          mensaje += `🍔 *${item.producto.nombre} (Promo Tipo 1)* 🍔\n\n`;
+          mensaje += `Mayonesa: ${p.personalizacion.conMayonesa ? "Sí" : "No"}\n`;
+          mensaje += `Con queso: ${p.personalizacion.conQueso ? "Sí" : "No"}\n`;
+          if (p.personalizacion.conQueso && p.personalizacion.tipoQueso) {
+            mensaje += `Tipo de queso: ${p.personalizacion.tipoQueso}\n`;
           }
-          const aderezosSel = Object.entries(prod.seleccionesAderezos)
-            .filter(([_, incluido]) => incluido)
-            .map(([aderezo]) => aderezo);
-          if (aderezosSel.length) {
-            mensaje += `Aderezos: ${aderezosSel.join(", ")}\n`;
+          if (p.toppings && p.toppings.length > 0) {
+            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
           }
-          if (prod.observaciones.trim()) {
-            mensaje += `Observaciones: ${prod.observaciones}\n`;
+          if (p.aderezos && p.aderezos.length > 0) {
+            mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
           }
-          mensaje += "\n";
-        });
-        mensaje += `*Total Promo:* $${item.precio}\n\n`;
-      } else {
-        const tipo = (item.personalizacion as any).tipo;
-        mensaje += `🍔 *${item.producto.nombre}* 🍔\n\n`;
-        mensaje += `Precio: $${item.precio}\n`;
-        if (tipo === "completo") {
-          const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = item.personalizacion as any;
-          mensaje += `Mayonesa: ${conMayonesa ? "Sí" : "No"}\n`;
-          mensaje += `Con queso: ${conQueso ? "Sí" : "No"}\n`;
-          if (conQueso && tipoQueso) {
-            mensaje += `Tipo de queso: ${tipoQueso}\n`;
+          if (p.observaciones && p.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.observaciones}\n`;
           }
-          if (aderezos && aderezos.length > 0) {
-            mensaje += `Aderezos: ${aderezos.join(", ")}\n`;
-          }
-          if (toppings && toppings.length > 0) {
-            mensaje += `Toppings: ${toppings.join(", ")}\n`;
-          }
-          if (extras && extras.length > 0) {
-            mensaje += `Extras: ${extras.join(", ")}\n`;
-          }
-          if (observaciones.trim()) {
-            mensaje += `Observaciones: ${observaciones}\n`;
-          }
-        } else if (tipo === "observaciones") {
-          const { observaciones } = item.personalizacion as any;
-          if (observaciones.trim()) {
-            mensaje += `Observaciones: ${observaciones}\n`;
-          }
-        } else if (tipo === "acompanar") {
-          const { opcion, dips, observaciones } = item.personalizacion as any;
-          mensaje += `Opción principal: ${opcion}\n`;
-          if (dips && dips.length > 0) {
-            mensaje += `DIPS: ${dips.join(", ")}\n`;
-          }
-          if (observaciones.trim()) {
-            mensaje += `Observaciones: ${observaciones}\n`;
-          }
-        } else if (tipo === "sandwich") {
-          const { aderezos, toppings, observaciones } = item.personalizacion as any;
-          if (aderezos && aderezos.length > 0) {
-            mensaje += `Aderezos: ${aderezos.join(", ")}\n`;
-          }
-          if (toppings && toppings.length > 0) {
-            mensaje += `Toppings: ${toppings.join(", ")}\n`;
-          }
-          if (observaciones.trim()) {
-            mensaje += `Observaciones: ${observaciones}\n`;
-          }
+          mensaje += `*Total:* $${item.precio}\n\n`;
+          break;
         }
-        mensaje += "\n";
+        case TipoProducto.Tipo2: {
+          const p = item.personalizacion as {
+            tipo: TipoProducto.Tipo2;
+            subproducto1: {
+              conMayonesa: boolean;
+              conQueso: boolean;
+              tipoQueso: string;
+              aderezos: string[];
+              observaciones: string;
+            };
+            subproducto2: {
+              conMayonesa: boolean;
+              conQueso: boolean;
+              tipoQueso: string;
+              aderezos: string[];
+              observaciones: string;
+            };
+          };
+          mensaje += `🍔 *${item.producto.nombre} (Tipo 2)* 🍔\n\n`;
+          mensaje += `*Subproducto 1:*\n`;
+          mensaje += `Mayonesa: ${p.subproducto1.conMayonesa ? "Sí" : "No"}\n`;
+          mensaje += `Con queso: ${p.subproducto1.conQueso ? "Sí" : "No"}\n`;
+          if (p.subproducto1.conQueso && p.subproducto1.tipoQueso) {
+            mensaje += `Tipo de queso: ${p.subproducto1.tipoQueso}\n`;
+          }
+          if (p.subproducto1.aderezos && p.subproducto1.aderezos.length > 0) {
+            mensaje += `Aderezos: ${p.subproducto1.aderezos.join(", ")}\n`;
+          }
+          if (p.subproducto1.observaciones && p.subproducto1.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.subproducto1.observaciones}\n`;
+          }
+          mensaje += `\n*Subproducto 2:*\n`;
+          mensaje += `Mayonesa: ${p.subproducto2.conMayonesa ? "Sí" : "No"}\n`;
+          mensaje += `Con queso: ${p.subproducto2.conQueso ? "Sí" : "No"}\n`;
+          if (p.subproducto2.conQueso && p.subproducto2.tipoQueso) {
+            mensaje += `Tipo de queso: ${p.subproducto2.tipoQueso}\n`;
+          }
+          if (p.subproducto2.aderezos && p.subproducto2.aderezos.length > 0) {
+            mensaje += `Aderezos: ${p.subproducto2.aderezos.join(", ")}\n`;
+          }
+          if (p.subproducto2.observaciones && p.subproducto2.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.subproducto2.observaciones}\n`;
+          }
+          mensaje += `*Total:* $${item.precio}\n\n`;
+          break;
+        }
+        case TipoProducto.Tipo3: {
+          const p = item.personalizacion as {
+            tipo: TipoProducto.Tipo3;
+            conMayonesa: boolean;
+            conQueso: boolean;
+            tipoQueso: string;
+            toppings: { id: number; nombre: string; precio: number }[];
+            aderezos: string[];
+            extras: string[];
+            observaciones?: string;
+          };
+          mensaje += `🍔 *${item.producto.nombre} (Hamburguesa Completa)* 🍔\n\n`;
+          mensaje += `Mayonesa: ${p.conMayonesa ? "Sí" : "No"}\n`;
+          mensaje += `Con queso: ${p.conQueso ? "Sí" : "No"}\n`;
+          if (p.conQueso && p.tipoQueso) {
+            mensaje += `Tipo de queso: ${p.tipoQueso}\n`;
+          }
+          if (p.toppings && p.toppings.length > 0) {
+            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
+          }
+          if (p.aderezos && p.aderezos.length > 0) {
+            mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
+          }
+          if (p.extras && p.extras.length > 0) {
+            mensaje += `Extras: ${p.extras.join(", ")}\n`;
+          }
+          if (p.observaciones && p.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.observaciones}\n`;
+          }
+          mensaje += `*Total:* $${item.precio}\n\n`;
+          break;
+        }
+        case TipoProducto.Tipo4: {
+          const p = item.personalizacion as {
+            tipo: TipoProducto.Tipo4;
+            aderezos: string[];
+            toppings: { id: number; nombre: string; precio: number }[];
+            observaciones: string;
+          };
+          mensaje += `🥪 *${item.producto.nombre} (Sandwich)* 🥪\n\n`;
+          if (p.aderezos && p.aderezos.length > 0) {
+            mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
+          }
+          if (p.toppings && p.toppings.length > 0) {
+            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
+          }
+          if (p.observaciones && p.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.observaciones}\n`;
+          }
+          mensaje += `*Total:* $${item.precio}\n\n`;
+          break;
+        }
+        case TipoProducto.Tipo5:
+        case TipoProducto.Tipo6: {
+          const p = item.personalizacion as {
+            tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6;
+            observaciones: string;
+          };
+          mensaje += `🍽 *${item.producto.nombre}* 🍽\n\n`;
+          if (p.observaciones && p.observaciones.trim()) {
+            mensaje += `Observaciones: ${p.observaciones}\n`;
+          }
+          mensaje += `*Total:* $${item.precio}\n\n`;
+          break;
+        }
+        default:
+          mensaje += `*${item.producto.nombre}*\nPrecio: $${item.precio}\n\n`;
       }
     });
 
@@ -121,6 +197,40 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }
     mensaje += `\n*Total del Carrito: $${totalCarrito}*\n`;
     mensaje += "\n✅ *Por favor, confirma mi pedido. ¡Gracias!*";
+
+    const pedidoData = {
+      nombreCliente,
+      metodoEntrega,
+      direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
+      metodoPago,
+      items,
+      total: totalCarrito,
+    };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const payload: Pedido = {
+      id: 0,
+      orden: JSON.stringify(pedidoData),
+      estado: "Pendiente",
+      fechaCreacion: new Date().toISOString(),
+      fechaFinalizacion: null,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/api/pedidos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        console.error("Error al guardar el pedido en la DB");
+        return;
+      }
+    } catch (error) {
+      console.error("Error al guardar el pedido:", error);
+      return;
+    }
+
     const numeroTelefono = "+543832460459";
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, "_blank");
@@ -134,7 +244,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     <>
       <motion.div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 w-11/12 max-w-lg mx-4 h-5/6 overflow-y-auto relative rounded shadow-lg">
-          <button 
+          <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
           >
@@ -146,75 +256,112 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {items.map(item => {
-                if ("hamburguesas" in item.personalizacion) {
-                  const promoPersonalizacion = item.personalizacion as {
-                    hamburguesas: Array<{
-                      conMayonesa: boolean;
-                      conQueso: boolean;
-                      tipoQueso: string;
-                      seleccionesAderezos: Record<string, boolean>;
-                      observaciones: string;
-                    }>;
-                  };
-                  return (
-                    <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                      <h3 className="font-bold text-lg text-center">
-                        {item.producto.nombre} (Promo)
-                      </h3>
-                      <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                      <div className="mt-2 grid grid-cols-1 gap-2">
-                        {promoPersonalizacion.hamburguesas.map((prod, index) => (
-                          <div key={index} className="border border-gray-200 p-2 rounded">
-                            <p className="font-medium">Producto {index + 1}:</p>
+                switch (item.personalizacion.tipo) {
+                  case TipoProducto.Tipo1: {
+                    const p = item.personalizacion as {
+                      tipo: TipoProducto.Tipo1;
+                      personalizacion: {
+                        conMayonesa: boolean;
+                        conQueso: boolean;
+                        tipoQueso: string;
+                      };
+                      toppings: { id: number; nombre: string; precio: number }[];
+                      aderezos?: string[];
+                      observaciones?: string;
+                    };
+                    return (
+                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                        <h3 className="font-bold text-lg text-center">
+                          {item.producto.nombre} (Promo)
+                        </h3>
+                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                          <li>Mayonesa: {p.personalizacion.conMayonesa ? "Sí" : "No"}</li>
+                          <li>Con queso: {p.personalizacion.conQueso ? "Sí" : "No"}</li>
+                          {p.personalizacion.conQueso && p.personalizacion.tipoQueso && (
+                            <li>Tipo de queso: {p.personalizacion.tipoQueso}</li>
+                          )}
+                          {p.toppings && p.toppings.length > 0 && (
+                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                          )}
+                          {p.aderezos && p.aderezos.length > 0 && (
+                            <li>Aderezos: {p.aderezos.join(", ")}</li>
+                          )}
+                          {p.observaciones && p.observaciones.trim() && (
+                            <li>Observaciones: {p.observaciones}</li>
+                          )}
+                        </ul>
+                        <div className="mt-2 flex justify-center">
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  case TipoProducto.Tipo2: {
+                    const p = item.personalizacion as {
+                      tipo: TipoProducto.Tipo2;
+                      subproducto1: {
+                        conMayonesa: boolean;
+                        conQueso: boolean;
+                        tipoQueso: string;
+                        aderezos: string[];
+                        observaciones: string;
+                      };
+                      subproducto2: {
+                        conMayonesa: boolean;
+                        conQueso: boolean;
+                        tipoQueso: string;
+                        aderezos: string[];
+                        observaciones: string;
+                      };
+                    };
+                    return (
+                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                        <h3 className="font-bold text-lg text-center">
+                          {item.producto.nombre} (Promo)
+                        </h3>
+                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                        <div className="mt-2">
+                          <div className="border border-gray-200 p-2 rounded mb-2">
+                            <p className="font-medium">Producto 1:</p>
                             <ul className="text-sm text-gray-700 mt-1 space-y-1">
-                              <li>Mayonesa: {prod.conMayonesa ? "Sí" : "No"}</li>
-                              <li>Con queso: {prod.conQueso ? "Sí" : "No"}</li>
-                              {prod.conQueso && prod.tipoQueso && (
-                                <li>Tipo de queso: {prod.tipoQueso}</li>
+                              <li>Mayonesa: {p.subproducto1.conMayonesa ? "Sí" : "No"}</li>
+                              <li>Con queso: {p.subproducto1.conQueso ? "Sí" : "No"}</li>
+                              {p.subproducto1.conQueso && p.subproducto1.tipoQueso && (
+                                <li>Tipo de queso: {p.subproducto1.tipoQueso}</li>
                               )}
-                              <li>
-                                Aderezos:{" "}
-                                {Object.entries(prod.seleccionesAderezos)
-                                  .filter(([_, incluido]) => incluido)
-                                  .map(([aderezo]) => aderezo)
-                                  .join(", ")}
-                              </li>
-                              {prod.observaciones && (
-                                <li>Observaciones: {prod.observaciones}</li>
+                              {p.subproducto1.aderezos && p.subproducto1.aderezos.length > 0 && (
+                                <li>Aderezos: {p.subproducto1.aderezos.join(", ")}</li>
+                              )}
+                              {p.subproducto1.observaciones && p.subproducto1.observaciones.trim() && (
+                                <li>Observaciones: {p.subproducto1.observaciones}</li>
                               )}
                             </ul>
                           </div>
-                        ))}
-                      </div>
-                      <div className="mt-2 flex justify-center">
-                        <button 
-                          onClick={() => removeItem(item.id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    </div>
-                  );
-                } else {
-                  const personalizacion = item.personalizacion as any;
-                  if (personalizacion.tipo === "completo") {
-                    const { conMayonesa, conQueso, tipoQueso, aderezos, toppings, extras, observaciones } = personalizacion;
-                    return (
-                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
-                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                          <li>Mayonesa: {conMayonesa ? "Sí" : "No"}</li>
-                          <li>Con queso: {conQueso ? "Sí" : "No"}</li>
-                          {conQueso && tipoQueso && <li>Tipo de queso: {tipoQueso}</li>}
-                          {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
-                          {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
-                          {extras && extras.length > 0 && <li>Extras: {extras.join(", ")}</li>}
-                          {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
-                        </ul>
+                          <div className="border border-gray-200 p-2 rounded">
+                            <p className="font-medium">Producto 2:</p>
+                            <ul className="text-sm text-gray-700 mt-1 space-y-1">
+                              <li>Mayonesa: {p.subproducto2.conMayonesa ? "Sí" : "No"}</li>
+                              <li>Con queso: {p.subproducto2.conQueso ? "Sí" : "No"}</li>
+                              {p.subproducto2.conQueso && p.subproducto2.tipoQueso && (
+                                <li>Tipo de queso: {p.subproducto2.tipoQueso}</li>
+                              )}
+                              {p.subproducto2.aderezos && p.subproducto2.aderezos.length > 0 && (
+                                <li>Aderezos: {p.subproducto2.aderezos.join(", ")}</li>
+                              )}
+                              {p.subproducto2.observaciones && p.subproducto2.observaciones.trim() && (
+                                <li>Observaciones: {p.subproducto2.observaciones}</li>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
                         <div className="mt-2 flex justify-center">
-                          <button 
+                          <button
                             onClick={() => removeItem(item.id)}
                             className="bg-red-500 text-white px-3 py-1 rounded text-sm"
                           >
@@ -223,70 +370,119 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                         </div>
                       </div>
                     );
-                  } else if (personalizacion.tipo === "observaciones") {
-                    const { observaciones } = personalizacion;
-                    return (
-                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
-                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                          {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
-                        </ul>
-                        <div className="mt-2 flex justify-center">
-                          <button 
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  } else if (personalizacion.tipo === "acompanar") {
-                    const { opcion, dips, observaciones } = personalizacion;
-                    return (
-                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
-                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                          <li>Opción principal: {opcion}</li>
-                          {dips && dips.length > 0 && <li>DIPS: {dips.join(", ")}</li>}
-                          {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
-                        </ul>
-                        <div className="mt-2 flex justify-center">
-                          <button 
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  } else if (personalizacion.tipo === "sandwich") {
-                    const { aderezos, toppings, observaciones } = personalizacion;
-                    return (
-                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
-                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
-                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                          {aderezos && aderezos.length > 0 && <li>Aderezos: {aderezos.join(", ")}</li>}
-                          {toppings && toppings.length > 0 && <li>Toppings: {toppings.join(", ")}</li>}
-                          {observaciones.trim() && <li>Observaciones: {observaciones}</li>}
-                        </ul>
-                        <div className="mt-2 flex justify-center">
-                          <button 
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  } else {
-                    return null;
                   }
+                  case TipoProducto.Tipo3: {
+                    const p = item.personalizacion as {
+                      tipo: TipoProducto.Tipo3;
+                      conMayonesa: boolean;
+                      conQueso: boolean;
+                      tipoQueso: string;
+                      toppings: { id: number; nombre: string; precio: number }[];
+                      aderezos: string[];
+                      extras: string[];
+                      observaciones?: string;
+                    };
+                    return (
+                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                        <h3 className="font-bold text-lg text-center">
+                          {item.producto.nombre} (Hamburguesa Completa)
+                        </h3>
+                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                          <li>Mayonesa: {p.conMayonesa ? "Sí" : "No"}</li>
+                          <li>Con queso: {p.conQueso ? "Sí" : "No"}</li>
+                          {p.conQueso && p.tipoQueso && (
+                            <li>Tipo de queso: {p.tipoQueso}</li>
+                          )}
+                          {p.toppings && p.toppings.length > 0 && (
+                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                          )}
+                          {p.aderezos && p.aderezos.length > 0 && (
+                            <li>Aderezos: {p.aderezos.join(", ")}</li>
+                          )}
+                          {p.extras && p.extras.length > 0 && (
+                            <li>Extras: {p.extras.join(", ")}</li>
+                          )}
+                          {p.observaciones && p.observaciones.trim() && (
+                            <li>Observaciones: {p.observaciones}</li>
+                          )}
+                        </ul>
+                        <div className="mt-2 flex justify-center">
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  case TipoProducto.Tipo4: {
+                    const p = item.personalizacion as {
+                      tipo: TipoProducto.Tipo4;
+                      aderezos: string[];
+                      toppings: { id: number; nombre: string; precio: number }[];
+                      observaciones: string;
+                    };
+                    return (
+                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                        <h3 className="font-bold text-lg text-center">
+                          {item.producto.nombre} (Sandwich)
+                        </h3>
+                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                          {p.aderezos && p.aderezos.length > 0 && (
+                            <li>Aderezos: {p.aderezos.join(", ")}</li>
+                          )}
+                          {p.toppings && p.toppings.length > 0 && (
+                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                          )}
+                          {p.observaciones && p.observaciones.trim() && (
+                            <li>Observaciones: {p.observaciones}</li>
+                          )}
+                        </ul>
+                        <div className="mt-2 flex justify-center">
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  case TipoProducto.Tipo5:
+                  case TipoProducto.Tipo6: {
+                    const p = item.personalizacion as {
+                      tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6;
+                      observaciones: string;
+                    };
+                    return (
+                      <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
+                        <h3 className="font-bold text-lg text-center">
+                          {item.producto.nombre}
+                        </h3>
+                        <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
+                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                          {p.observaciones && p.observaciones.trim() && (
+                            <li>Observaciones: {p.observaciones}</li>
+                          )}
+                        </ul>
+                        <div className="mt-2 flex justify-center">
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  default:
+                    return null;
                 }
               })}
             </div>
@@ -294,7 +490,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           {items.length > 0 && (
             <>
               <div className="mt-4 flex flex-col gap-4">
-                {/* Sección para ingresar el nombre del cliente */}
                 <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
                   <p className="font-bold">Nombre del Cliente</p>
                   <input
@@ -308,14 +503,18 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
                   <p className="font-bold">Método de Entrega</p>
                   <div className="mt-2 flex justify-center gap-4">
-                    <button 
-                      className={`px-4 py-2 rounded ${metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
+                    <button
+                      className={`px-4 py-2 rounded ${
+                        metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
+                      }`}
                       onClick={() => setMetodoEntrega("retiro")}
                     >
                       Retiro en el Local
                     </button>
-                    <button 
-                      className={`px-4 py-2 rounded ${metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
+                    <button
+                      className={`px-4 py-2 rounded ${
+                        metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
+                      }`}
                       onClick={() => setMetodoEntrega("delivery")}
                     >
                       Delivery
@@ -323,31 +522,31 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </div>
                   {metodoEntrega === "delivery" && (
                     <div className="mt-4">
-                      <input 
-                        type="text" 
-                        placeholder="Calle" 
-                        value={calle} 
+                      <input
+                        type="text"
+                        placeholder="Calle"
+                        value={calle}
                         onChange={(e) => setCalle(e.target.value)}
                         className="w-full p-2 border rounded mb-2"
                       />
-                      <input 
-                        type="text" 
-                        placeholder="Número" 
-                        value={numero} 
+                      <input
+                        type="text"
+                        placeholder="Número"
+                        value={numero}
                         onChange={(e) => setNumero(e.target.value)}
                         className="w-full p-2 border rounded mb-2"
                       />
-                      <input 
-                        type="text" 
-                        placeholder="Piso" 
-                        value={piso} 
+                      <input
+                        type="text"
+                        placeholder="Piso"
+                        value={piso}
                         onChange={(e) => setPiso(e.target.value)}
                         className="w-full p-2 border rounded mb-2"
                       />
-                      <input 
-                        type="text" 
-                        placeholder="Departamento" 
-                        value={departamento} 
+                      <input
+                        type="text"
+                        placeholder="Departamento"
+                        value={departamento}
                         onChange={(e) => setDepartamento(e.target.value)}
                         className="w-full p-2 border rounded"
                       />
@@ -357,14 +556,18 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 <div className="border border-gray-300 p-4 rounded-lg shadow-sm">
                   <p className="font-bold">Método de Pago</p>
                   <div className="mt-2 flex justify-center gap-4">
-                    <button 
-                      className={`px-4 py-2 rounded ${metodoPago === "Efectivo" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
+                    <button
+                      className={`px-4 py-2 rounded ${
+                        metodoPago === "Efectivo" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
+                      }`}
                       onClick={() => setMetodoPago("Efectivo")}
                     >
                       Efectivo
                     </button>
-                    <button 
-                      className={`px-4 py-2 rounded ${metodoPago === "Transferencia" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
+                    <button
+                      className={`px-4 py-2 rounded ${
+                        metodoPago === "Transferencia" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
+                      }`}
                       onClick={() => setMetodoPago("Transferencia")}
                     >
                       Transferencia
@@ -386,7 +589,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 </div>
                 <p className="text-lg font-bold mt-0 mb-2">Total del Carrito: ${totalCarrito}</p>
               </div>
-              <button 
+              <button
                 onClick={generarPedido}
                 className="bg-blue-600 text-white px-4 py-2 rounded w-full"
               >
@@ -407,7 +610,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           <div className="bg-white p-6 rounded-lg shadow-lg text-center mx-4">
             <Image
               className="mx-auto"
-              src="https://i.ibb.co/bgVxMWhC/confirmation-1152155-960-720.webp" // Reemplaza con el enlace directo de imgbb para la imagen SVG de confirmación
+              src="https://i.ibb.co/bgVxMWhC/confirmation-1152155-960-720.webp"
               alt="Confirmación"
               width={100}
               height={100}

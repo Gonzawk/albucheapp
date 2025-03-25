@@ -4,6 +4,10 @@ import "./globals.css";
 import { ImageProvider } from "../../src/app/context/ImageContext";
 import { CartProvider } from "../../src/app/context/CartContext";
 
+// app/layout.tsx (ejemplo)
+import { DarkModeProvider } from "../../src/app/context/DarkModeContext";
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,7 +33,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <CartProvider>
           <ImageProvider>
-            {children}
+          <DarkModeProvider>{children}</DarkModeProvider>
           </ImageProvider>
         </CartProvider>
       </body>

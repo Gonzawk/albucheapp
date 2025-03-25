@@ -1,38 +1,82 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
+import { TipoProducto } from "../config/personalizacionConfig";
+import { Topping } from "../../../types/Topping"; // Importa la interfaz Topping
 
+// Definimos el tipo Personalizacion basado en el esquema de cada TipoProducto
 export type Personalizacion =
   | {
-      tipo: "completo";
+      tipo: TipoProducto.Tipo1;
+      // Promo Tipo 1: permite personalización, aderezos, toppings y observaciones.
+      personalizacion?: any; // se puede ampliar si se requiere más detalle
+      aderezos?: string[];
+      toppings: Topping[]; // Actualizado a Topping[]
+      observaciones?: string;
+    }
+  | {
+      tipo: TipoProducto.Tipo2;
+      // Tipo 2: 2 productos sin toppings, cada uno con su propia personalización
+      subproducto1: {
+        conMayonesa: boolean;
+        conQueso: boolean;
+        tipoQueso: string;
+        aderezos: string[];
+        observaciones: string;
+      };
+      subproducto2: {
+        conMayonesa: boolean;
+        conQueso: boolean;
+        tipoQueso: string;
+        aderezos: string[];
+        observaciones: string;
+      };
+    }
+  | {
+      tipo: TipoProducto.Tipo3;
+      // Hamburguesas: personalización completa
       conMayonesa: boolean;
       conQueso: boolean;
       tipoQueso: string;
+      toppings: Topping[]; // Actualizado a Topping[]
       aderezos: string[];
-      toppings: string[];
       extras: string[];
-      observaciones: string;
-      hamburguesas?: any[]; // Opcional para promos
+      observaciones?: string;
     }
   | {
-      tipo: "observaciones";
+      tipo: TipoProducto.Tipo4;
+      // Sandwiches: aderezos, toppings y observaciones
+      aderezos: string[];
+      toppings: Topping[]; // Actualizado a Topping[]
       observaciones: string;
     }
   | {
+      tipo: TipoProducto.Tipo5;
+      // Para Acompañar: solo observaciones
+      observaciones: string;
+    }
+  | {
+      tipo: TipoProducto.Tipo6;
+      // Minutas: solo observaciones
+      observaciones: string;
+    }
+  | {
+      // Caso adicional: si se requiere el tipo "acompanar" fuera del enum
       tipo: "acompanar";
       opcion: string;
       dips: string[];
       observaciones: string;
     }
   | {
+      // Caso adicional: si se requiere el tipo "sandwich" de forma diferenciada
       tipo: "sandwich";
       aderezos: string[];
-      toppings: string[];
+      toppings: Topping[]; // Actualizado a Topping[]
       observaciones: string;
     };
 
 export interface CartItem {
   id: string;
-  producto: any;
+  producto: any; // Puedes tipificarlo según tu modelo
   personalizacion: Personalizacion;
   precio: number;
 }
