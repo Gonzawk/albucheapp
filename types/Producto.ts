@@ -7,6 +7,8 @@ export interface Producto {
   precio: number;
   imagen: string;
   categoria: string;
-  tipoProducto: TipoProducto;
-  PersonalizacionSchema?: string;
+  tipoProducto: number;
+  // Agregar esta línea si corresponde:
+  aderezos?: string[];
 }
+
