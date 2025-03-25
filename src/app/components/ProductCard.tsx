@@ -48,7 +48,8 @@ export default function ProductCard({
     "DIPS": 0, // Debe coincidir con la DB
   };
 
-  const tipo = producto.tipoProducto;
+  // Se fuerza el tipado a TipoProducto para evitar el error
+  const tipo = producto.tipoProducto as TipoProducto;
   const schemaConfig = personalizacionConfig.schemas[tipo];
   const allowedSections: string[] = schemaConfig ? schemaConfig.allowedSections : [];
 
@@ -226,13 +227,13 @@ export default function ProductCard({
         tipo: TipoProducto.Tipo1,
         personalizacion: personalizacionBasica,
         toppings: Object.entries(seleccionesToppings)
-  .filter(([_, incluido]) => incluido)
-  .map(([id]) => {
-    const topping = toppingsGlobales.find(t => t.id === parseInt(id));
-    return topping
-      ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
-      : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
-  }),
+          .filter(([_, incluido]) => incluido)
+          .map(([id]) => {
+            const topping = toppingsGlobales.find(t => t.id === parseInt(id));
+            return topping
+              ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
+              : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
+          }),
         aderezos: Object.entries(seleccionesAderezos)
           .filter(([_, incluido]) => incluido)
           .map(([key]) => key),
@@ -245,13 +246,13 @@ export default function ProductCard({
         conQueso: personalizacionBasica.conQueso,
         tipoQueso: personalizacionBasica.tipoQueso,
         toppings: Object.entries(seleccionesToppings)
-  .filter(([_, incluido]) => incluido)
-  .map(([id]) => {
-    const topping = toppingsGlobales.find(t => t.id === parseInt(id));
-    return topping
-      ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
-      : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
-  }),
+          .filter(([_, incluido]) => incluido)
+          .map(([id]) => {
+            const topping = toppingsGlobales.find(t => t.id === parseInt(id));
+            return topping
+              ? { id: topping.id, nombre: topping.nombre, precio: topping.precio, activo: topping.activo }
+              : { id: parseInt(id), nombre: id.toString(), precio: 0, activo: true };
+          }),
         aderezos: Object.entries(seleccionesAderezos)
           .filter(([_, incluido]) => incluido)
           .map(([key]) => key),
@@ -268,7 +269,7 @@ export default function ProductCard({
         aderezos: Object.entries(seleccionesAderezos)
           .filter(([_, incluido]) => incluido)
           .map(([key]) => key),
-          toppings: Object.entries(seleccionesToppings)
+        toppings: Object.entries(seleccionesToppings)
           .filter(([_, incluido]) => incluido)
           .map(([id]) => {
             const topping = toppingsGlobales.find(t => t.id === parseInt(id));
@@ -620,7 +621,7 @@ export default function ProductCard({
                           }
                           className="mr-2"
                         />
-                        {topping.nombre} (+${topping.precio})
+                        {topping.nombre} {`(+${topping.precio})`}
                       </label>
                     ))}
                   </AccordionSection>
@@ -658,7 +659,7 @@ export default function ProductCard({
                                   }
                                   className="mr-2"
                                 />
-                                {dip.nombre} (+${dip.precio})
+                                {dip.nombre} {`(+${dip.precio})`}
                               </label>
                             ))}
                           </AccordionSection>
