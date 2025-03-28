@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import NavBarAdmin from "@/app/components/NavBarAdmin";
 import FooterAdmin from "@/app/components/FooterAdmin";
+import Link from "next/link";
 import { Extra } from "../../../../types/Extra";
 import { Dip } from "../../../../types/Dip";
 
@@ -251,12 +252,12 @@ export default function ExtrasPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <NavBarAdmin />
 
       <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
         <Image
-          src="/admin-banner.jpg"
+          src="/img/Albucheportadaweb.jpg" // Se carga la imagen desde public/img
           alt="Panel de Administración"
           fill
           style={{ objectFit: "cover" }}
@@ -278,7 +279,7 @@ export default function ExtrasPanel() {
             <select
               value={searchTypeExtra}
               onChange={(e) => setSearchTypeExtra(e.target.value as "id" | "nombre")}
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded text-gray-900 dark:text-gray-100"
             >
               <option value="id">Buscar por ID</option>
               <option value="nombre">Buscar por Nombre</option>
@@ -288,9 +289,9 @@ export default function ExtrasPanel() {
               placeholder={searchTypeExtra === "id" ? "ID del extra..." : "Nombre del extra..."}
               value={searchValueExtra}
               onChange={(e) => setSearchValueExtra(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full md:w-auto"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded w-full md:w-auto text-gray-900 dark:text-gray-100"
             />
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
               Buscar
             </button>
             <button
@@ -299,14 +300,14 @@ export default function ExtrasPanel() {
                 setSearchValueExtra("");
                 fetchExtras();
               }}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
             >
               Limpiar
             </button>
             <button
               onClick={() => setAddingExtra(true)}
               type="button"
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
             >
               Agregar Extra
             </button>
@@ -320,24 +321,24 @@ export default function ExtrasPanel() {
               exit={{ opacity: 0, scale: 0.8 }}
               className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
             >
-              <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-                <h3 className="text-2xl font-bold mb-4 text-center">Nuevo Extra</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+                <h3 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">Nuevo Extra</h3>
                 <div className="flex flex-col space-y-4">
                   <input
                     type="text"
                     placeholder="Nombre"
                     value={newExtra.nombre}
                     onChange={(e) => setNewExtra({ ...newExtra, nombre: e.target.value })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                   />
                   <input
                     type="number"
                     placeholder="Precio"
                     value={newExtra.precio}
                     onChange={(e) => setNewExtra({ ...newExtra, precio: parseFloat(e.target.value) })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                   />
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                     <span>Activo:</span>
                     <input
                       type="checkbox"
@@ -349,14 +350,14 @@ export default function ExtrasPanel() {
                     <button
                       onClick={createExtra}
                       type="button"
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                     >
                       Guardar
                     </button>
                     <button
                       onClick={() => setAddingExtra(false)}
                       type="button"
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -374,8 +375,8 @@ export default function ExtrasPanel() {
               exit={{ opacity: 0, scale: 0.8 }}
               className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
             >
-              <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-                <h3 className="text-2xl font-bold mb-4 text-center">Editar Extra</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+                <h3 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">Editar Extra</h3>
                 <form
                   onSubmit={(e: FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
@@ -388,7 +389,7 @@ export default function ExtrasPanel() {
                     placeholder="Nombre"
                     value={editingExtra.nombre}
                     onChange={(e) => setEditingExtra({ ...editingExtra, nombre: e.target.value })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
                   <input
@@ -398,10 +399,10 @@ export default function ExtrasPanel() {
                     onChange={(e) =>
                       setEditingExtra({ ...editingExtra, precio: parseFloat(e.target.value) })
                     }
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                     <span>Activo:</span>
                     <input
                       type="checkbox"
@@ -415,14 +416,14 @@ export default function ExtrasPanel() {
                   <div className="flex space-x-4">
                     <button
                       type="submit"
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                     >
                       Guardar
                     </button>
                     <button
                       type="button"
-                      onClick={() => setEditingExtra(null)}
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      onClick={() => setEditingDip(null)}
+                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -434,7 +435,7 @@ export default function ExtrasPanel() {
 
           {/* Lista de Extras */}
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 text-sm md:text-base">
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm md:text-base">
               <thead>
                 <tr>
                   <th className="py-2 px-4 border-b">ID</th>
@@ -455,14 +456,14 @@ export default function ExtrasPanel() {
                       <button
                         onClick={() => setEditingExtra(extra)}
                         type="button"
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => deleteExtra(extra.id)}
                         type="button"
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
                       >
                         Eliminar
                       </button>
@@ -481,7 +482,7 @@ export default function ExtrasPanel() {
           </div>
         </section>
 
-        <hr className="my-6" />
+        <hr className="my-6 border-gray-300 dark:border-gray-600" />
 
         {/* Sección de Dips */}
         <section>
@@ -490,7 +491,7 @@ export default function ExtrasPanel() {
             <select
               value={searchTypeDip}
               onChange={(e) => setSearchTypeDip(e.target.value as "id" | "nombre")}
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded text-gray-900 dark:text-gray-100"
             >
               <option value="id">Buscar por ID</option>
               <option value="nombre">Buscar por Nombre</option>
@@ -500,9 +501,9 @@ export default function ExtrasPanel() {
               placeholder={searchTypeDip === "id" ? "ID del dip..." : "Nombre del dip..."}
               value={searchValueDip}
               onChange={(e) => setSearchValueDip(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full md:w-auto"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded w-full md:w-auto text-gray-900 dark:text-gray-100"
             />
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
               Buscar
             </button>
             <button
@@ -511,14 +512,14 @@ export default function ExtrasPanel() {
                 setSearchValueDip("");
                 fetchDips();
               }}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
             >
               Limpiar
             </button>
             <button
               onClick={() => setAddingDip(true)}
               type="button"
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
             >
               Agregar Dip
             </button>
@@ -532,24 +533,24 @@ export default function ExtrasPanel() {
               exit={{ opacity: 0, scale: 0.8 }}
               className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
             >
-              <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-                <h3 className="text-2xl font-bold mb-4 text-center">Nuevo Dip</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+                <h3 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">Nuevo Dip</h3>
                 <div className="flex flex-col space-y-4">
                   <input
                     type="text"
                     placeholder="Nombre"
                     value={newDip.nombre}
                     onChange={(e) => setNewDip({ ...newDip, nombre: e.target.value })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                   />
                   <input
                     type="number"
                     placeholder="Precio"
                     value={newDip.precio}
                     onChange={(e) => setNewDip({ ...newDip, precio: parseFloat(e.target.value) })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                   />
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                     <span>Activo:</span>
                     <input
                       type="checkbox"
@@ -561,14 +562,14 @@ export default function ExtrasPanel() {
                     <button
                       onClick={createDip}
                       type="button"
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                     >
                       Guardar
                     </button>
                     <button
                       onClick={() => setAddingDip(false)}
                       type="button"
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -586,8 +587,8 @@ export default function ExtrasPanel() {
               exit={{ opacity: 0, scale: 0.8 }}
               className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
             >
-              <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-                <h3 className="text-2xl font-bold mb-4 text-center">Editar Dip</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+                <h3 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">Editar Dip</h3>
                 <form
                   onSubmit={(e: FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
@@ -600,7 +601,7 @@ export default function ExtrasPanel() {
                     placeholder="Nombre"
                     value={editingDip.nombre}
                     onChange={(e) => setEditingDip({ ...editingDip, nombre: e.target.value })}
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
                   <input
@@ -610,10 +611,10 @@ export default function ExtrasPanel() {
                     onChange={(e) =>
                       setEditingDip({ ...editingDip, precio: parseFloat(e.target.value) })
                     }
-                    className="border border-gray-300 p-2 rounded"
+                    className="border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                     <span>Activo:</span>
                     <input
                       type="checkbox"
@@ -627,14 +628,14 @@ export default function ExtrasPanel() {
                   <div className="flex space-x-4">
                     <button
                       type="submit"
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                     >
                       Guardar
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingDip(null)}
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -646,7 +647,7 @@ export default function ExtrasPanel() {
 
           {/* Lista de Dips */}
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 text-sm md:text-base">
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm md:text-base">
               <thead>
                 <tr>
                   <th className="py-2 px-4 border-b">ID</th>
@@ -667,14 +668,14 @@ export default function ExtrasPanel() {
                       <button
                         onClick={() => setEditingDip(dip)}
                         type="button"
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => deleteDip(dip.id)}
                         type="button"
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
                       >
                         Eliminar
                       </button>

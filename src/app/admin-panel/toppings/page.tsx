@@ -137,11 +137,11 @@ export default function ToppingsPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <NavBarAdmin />
       <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
         <Image
-          src="/admin-banner.jpg"
+          src="/img/Albucheportadaweb.jpg" // Se carga la imagen desde public/img
           alt="Panel de Administración"
           fill
           style={{ objectFit: "cover" }}
@@ -157,11 +157,14 @@ export default function ToppingsPanel() {
 
       <main className="flex-grow p-6">
         <h2 className="text-2xl font-bold mb-6">Toppings</h2>
-        <form onSubmit={handleSearch} className="mb-6 flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+        <form
+          onSubmit={handleSearch}
+          className="mb-6 flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2"
+        >
           <select
             value={searchType}
             onChange={(e) => setSearchType(e.target.value as "id" | "nombre")}
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded dark:text-gray-100"
           >
             <option value="id">Buscar por ID</option>
             <option value="nombre">Buscar por Nombre</option>
@@ -171,9 +174,12 @@ export default function ToppingsPanel() {
             placeholder={searchType === "id" ? "ID del topping..." : "Nombre del topping..."}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full md:w-auto"
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded w-full md:w-auto dark:text-gray-100"
           />
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          >
             Buscar
           </button>
           <button
@@ -182,14 +188,14 @@ export default function ToppingsPanel() {
               setSearchValue("");
               fetchToppings();
             }}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
           >
             Limpiar
           </button>
           <button
             onClick={() => setAddingTopping(true)}
             type="button"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
           >
             Agregar Topping
           </button>
@@ -203,15 +209,19 @@ export default function ToppingsPanel() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-              <h3 className="text-2xl font-bold mb-4 text-center">Nuevo Topping</h3>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+              <h3 className="text-2xl font-bold mb-4 text-center dark:text-gray-100">
+                Nuevo Topping
+              </h3>
               <div className="flex flex-col space-y-4">
                 <input
                   type="text"
                   placeholder="Nombre"
                   value={newTopping.nombre}
-                  onChange={(e) => setNewTopping({ ...newTopping, nombre: e.target.value })}
-                  className="border border-gray-300 p-2 rounded"
+                  onChange={(e) =>
+                    setNewTopping({ ...newTopping, nombre: e.target.value })
+                  }
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 />
                 <input
                   type="number"
@@ -220,9 +230,9 @@ export default function ToppingsPanel() {
                   onChange={(e) =>
                     setNewTopping({ ...newTopping, precio: parseFloat(e.target.value) })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 />
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center space-x-2 dark:text-gray-100">
                   <span>Activo:</span>
                   <input
                     type="checkbox"
@@ -234,14 +244,14 @@ export default function ToppingsPanel() {
                   <button
                     onClick={createTopping}
                     type="button"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                   >
                     Guardar
                   </button>
                   <button
                     onClick={() => setAddingTopping(false)}
                     type="button"
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -259,8 +269,10 @@ export default function ToppingsPanel() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-              <h3 className="text-2xl font-bold mb-4 text-center">Editar Topping</h3>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+              <h3 className="text-2xl font-bold mb-4 text-center dark:text-gray-100">
+                Editar Topping
+              </h3>
               <form
                 onSubmit={(e: FormEvent<HTMLFormElement>) => {
                   e.preventDefault();
@@ -275,7 +287,7 @@ export default function ToppingsPanel() {
                   onChange={(e) =>
                     setEditingTopping({ ...editingTopping, nombre: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 />
                 <input
@@ -288,10 +300,10 @@ export default function ToppingsPanel() {
                       precio: parseFloat(e.target.value),
                     })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 />
-                <label className="flex items-center space-x-2">
+                <label className="flex items-center space-x-2 dark:text-gray-100">
                   <span>Activo:</span>
                   <input
                     type="checkbox"
@@ -305,14 +317,14 @@ export default function ToppingsPanel() {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                   >
                     Guardar
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingTopping(null)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -322,56 +334,51 @@ export default function ToppingsPanel() {
           </motion.div>
         )}
 
-        {loading ? (
-          <p className="text-center">Cargando...</p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b">ID</th>
-                  <th className="py-2 px-4 border-b">Nombre</th>
-                  <th className="py-2 px-4 border-b">Precio</th>
-                  <th className="py-2 px-4 border-b">Activo</th>
-                  <th className="py-2 px-4 border-b">Acciones</th>
+        {/* Lista de Toppings */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm md:text-base">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b">ID</th>
+                <th className="py-2 px-4 border-b">Nombre</th>
+                <th className="py-2 px-4 border-b">Precio</th>
+                <th className="py-2 px-4 border-b">Activo</th>
+                <th className="py-2 px-4 border-b">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {toppings.map((topping) => (
+                <tr key={topping.id} className="text-center">
+                  <td className="py-2 px-4 border-b">{topping.id}</td>
+                  <td className="py-2 px-4 border-b">{topping.nombre}</td>
+                  <td className="py-2 px-4 border-b">${topping.precio}</td>
+                  <td className="py-2 px-4 border-b">{topping.activo ? "Sí" : "No"}</td>
+                  <td className="py-2 px-4 border-b space-x-2">
+                    <button
+                      onClick={() => setEditingTopping(topping)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => deleteTopping(topping.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {toppings.map((topping) => (
-                  <tr key={topping.id} className="text-center">
-                    <td className="py-2 px-4 border-b">{topping.id}</td>
-                    <td className="py-2 px-4 border-b">{topping.nombre}</td>
-                    <td className="py-2 px-4 border-b">${topping.precio}</td>
-                    <td className="py-2 px-4 border-b">{topping.activo ? "Sí" : "No"}</td>
-                    <td className="py-2 px-4 border-b space-x-2">
-                      <button
-                        onClick={() => setEditingTopping(topping)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => deleteTopping(topping.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {toppings.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-4">
-                      No se encontraron toppings.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+              ))}
+              {toppings.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4">
+                    No se encontraron toppings.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </main>
       <FooterAdmin />
     </div>

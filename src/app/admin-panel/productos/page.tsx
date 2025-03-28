@@ -10,8 +10,6 @@ import NavBarAdmin from "@/app/components/NavBarAdmin";
 import FooterAdmin from "@/app/components/FooterAdmin";
 import { Categoria } from "../../../../types/Categoria";
 
-
-
 export default function ProductosPanelComponent() {
   // Estados generales
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -203,12 +201,12 @@ export default function ProductosPanelComponent() {
     : productos;
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <NavBarAdmin />
 
       <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
         <Image
-          src="/admin-banner.jpg"
+          src="/img/Albucheportadaweb.jpg" // Se carga la imagen desde public/img
           alt="Panel de Administración"
           fill
           style={{ objectFit: "cover" }}
@@ -223,8 +221,6 @@ export default function ProductosPanelComponent() {
       </header>
 
       <main className="flex-grow p-6 space-y-6">
-        <h2 className="text-2xl font-bold mb-6">Productos</h2>
-        {/* Formulario de búsqueda */}
         <form
           onSubmit={handleSearch}
           className="mb-6 flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2"
@@ -234,7 +230,7 @@ export default function ProductosPanelComponent() {
             onChange={(e) =>
               setSearchType(e.target.value as "id" | "nombre")
             }
-            className="border border-gray-300 p-2 rounded"
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded dark:text-gray-100"
           >
             <option value="id">Buscar por ID</option>
             <option value="nombre">Buscar por Nombre</option>
@@ -248,11 +244,11 @@ export default function ProductosPanelComponent() {
             }
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="border border-gray-300 p-2 rounded w-full md:w-auto"
+            className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded w-full md:w-auto dark:text-gray-100"
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             Buscar
           </button>
@@ -262,14 +258,14 @@ export default function ProductosPanelComponent() {
               setSearchValue("");
               fetchProductos();
             }}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
           >
             Limpiar
           </button>
           <button
             onClick={() => setAddingProducto(true)}
             type="button"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
           >
             Agregar Producto
           </button>
@@ -283,8 +279,8 @@ export default function ProductosPanelComponent() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-              <h3 className="text-2xl font-bold mb-4 text-center">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+              <h3 className="text-2xl font-bold mb-4 text-center dark:text-gray-100">
                 Nuevo Producto
               </h3>
               <div className="flex flex-col space-y-4">
@@ -295,7 +291,7 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setNewProducto({ ...newProducto, nombre: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 />
                 <textarea
                   placeholder="Descripción"
@@ -303,7 +299,7 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setNewProducto({ ...newProducto, descripcion: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   rows={3}
                 ></textarea>
                 <input
@@ -316,7 +312,7 @@ export default function ProductosPanelComponent() {
                       precio: parseFloat(e.target.value),
                     })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 />
                 <input
                   type="text"
@@ -325,15 +321,14 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setNewProducto({ ...newProducto, imagen: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 />
-                {/* Dropdown para Categoría: se carga dinámicamente */}
                 <select
                   value={newProducto.categoria}
                   onChange={(e) =>
                     setNewProducto({ ...newProducto, categoria: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 >
                   <option value="">Selecciona una Categoría</option>
                   {categorias.map((cat) => (
@@ -350,7 +345,7 @@ export default function ProductosPanelComponent() {
                       tipoProducto: parseInt(e.target.value),
                     })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                 >
                   <option value={1}>Tipo 1: 1 producto + 2 Toppings</option>
                   <option value={2}>Tipo 2: 2 productos sin toppings</option>
@@ -362,7 +357,7 @@ export default function ProductosPanelComponent() {
                   <option value={6}>Tipo 6: Minutas</option>
                 </select>
                 <div>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 dark:text-gray-200">
                     Esquema:{" "}
                     {schemas[newProducto.tipoProducto as TipoProducto].description}
                   </p>
@@ -371,14 +366,14 @@ export default function ProductosPanelComponent() {
                   <button
                     onClick={createProducto}
                     type="button"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                   >
                     Guardar
                   </button>
                   <button
                     onClick={() => setAddingProducto(false)}
                     type="button"
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -396,8 +391,8 @@ export default function ProductosPanelComponent() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-              <h3 className="text-2xl font-bold mb-4 text-center">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+              <h3 className="text-2xl font-bold mb-4 text-center dark:text-gray-100">
                 Editar Producto
               </h3>
               <form
@@ -414,7 +409,7 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setEditingProducto({ ...editingProducto, nombre: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 />
                 <textarea
@@ -423,7 +418,7 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setEditingProducto({ ...editingProducto, descripcion: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   rows={3}
                   required
                 ></textarea>
@@ -437,7 +432,7 @@ export default function ProductosPanelComponent() {
                       precio: parseFloat(e.target.value),
                     })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 />
                 <input
@@ -447,16 +442,15 @@ export default function ProductosPanelComponent() {
                   onChange={(e) =>
                     setEditingProducto({ ...editingProducto, imagen: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 />
-                {/* Dropdown para Categoría en modal editar */}
                 <select
                   value={editingProducto.categoria}
                   onChange={(e) =>
                     setEditingProducto({ ...editingProducto, categoria: e.target.value })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 >
                   <option value="">Selecciona una Categoría</option>
@@ -474,7 +468,7 @@ export default function ProductosPanelComponent() {
                       tipoProducto: parseInt(e.target.value),
                     })
                   }
-                  className="border border-gray-300 p-2 rounded"
+                  className="border border-gray-300 dark:border-gray-600 p-2 rounded dark:bg-gray-700 dark:text-gray-100"
                   required
                 >
                   <option value={1}>Tipo 1: 1 producto + 2 Toppings</option>
@@ -487,7 +481,7 @@ export default function ProductosPanelComponent() {
                   <option value={6}>Tipo 6: Minutas</option>
                 </select>
                 <div>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 dark:text-gray-200">
                     Esquema:{" "}
                     {schemas[editingProducto.tipoProducto as TipoProducto].description}
                   </p>
@@ -495,14 +489,14 @@ export default function ProductosPanelComponent() {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
                   >
                     Guardar
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingProducto(null)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -514,7 +508,7 @@ export default function ProductosPanelComponent() {
 
         {/* Lista de productos */}
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
+          <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm md:text-base">
             <thead>
               <tr>
                 <th className="py-2 px-4 border-b">ID</th>
@@ -546,13 +540,13 @@ export default function ProductosPanelComponent() {
                   <td className="py-2 px-4 border-b space-x-2">
                     <button
                       onClick={() => setEditingProducto(prod)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => deleteProducto(prod.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
                     >
                       Eliminar
                     </button>

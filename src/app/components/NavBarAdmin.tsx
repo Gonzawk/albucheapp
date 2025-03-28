@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "@/app/context/AuthContext";
 
 export default function NavBarAdmin() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { logout } = useContext(AuthContext);
 
   // Menú base para las rutas de Productos, Toppings, Aderezos y Extras
   const baseLinks = [
@@ -59,28 +61,55 @@ export default function NavBarAdmin() {
   }
 
   return (
-    <header className="bg-white shadow py-4 px-6">
+    <header className="bg-white dark:bg-gray-800 shadow py-4 px-6">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Panel de Administración</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+          Panel de Administración
+        </h1>
         {/* Menú de escritorio */}
-        <nav className="hidden md:flex space-x-4">
+        <nav className="hidden md:flex space-x-4 items-center">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} className="text-gray-700 hover:text-blue-600 transition-colors">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
+            >
               {link.label}
             </Link>
           ))}
+          <button
+            onClick={logout}
+            className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
+          >
+            Cerrar Sesión
+          </button>
         </nav>
         {/* Botón para menú móvil */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="focus:outline-none text-gray-700 hover:text-blue-600"
+            className="focus:outline-none text-gray-700 dark:text-gray-200 hover:text-blue-600"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -88,18 +117,27 @@ export default function NavBarAdmin() {
       </div>
       {/* Menú móvil */}
       {mobileMenuOpen && (
-        <nav className="md:hidden bg-white shadow mt-2">
+        <nav className="md:hidden bg-white dark:bg-gray-800 shadow mt-2">
           <div className="px-4 py-2 space-y-2">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-700 hover:text-blue-600 transition-colors"
+                className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                logout();
+              }}
+              className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
+            >
+              Cerrar Sesión
+            </button>
           </div>
         </nav>
       )}

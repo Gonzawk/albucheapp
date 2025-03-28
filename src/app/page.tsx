@@ -1,20 +1,15 @@
 "use client";
-import Image from 'next/image';
-import Link from 'next/link';
-import Navbar from '../app/components/Navbar';
-import { useImage } from '../app/context/ImageContext';
-import { useState, useEffect } from 'react';
-import ProductCard from '../app/components/ProductCard';
-// Se elimina la importación de getProductos, ya que haremos la llamada directamente
-import { Producto } from '../../types/Producto';
-import { useCart } from '../app/context/CartContext';
-import CartModal from '../app/components/CartModal';
-import Footer from '../app/components/Footer';
-import SocialMedia from '../app/components/SocialMedia';
-
-// Puedes modificar estos valores para cambiar el horario de atención.
-const HORARIO_INICIO = "19:30";
-const HORARIO_FIN = "23:30";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "../app/components/Navbar";
+import { useImage } from "../app/context/ImageContext";
+import { useState, useEffect } from "react";
+import ProductCard from "../app/components/ProductCard";
+import { Producto } from "../../types/Producto";
+import { useCart } from "../app/context/CartContext";
+import CartModal from "../app/components/CartModal";
+import Footer from "../app/components/Footer";
+import SocialMedia from "../app/components/SocialMedia";
 
 // Define la interfaz de Categoría
 interface Categoria {
@@ -22,6 +17,14 @@ interface Categoria {
   nombre: string;
   key: string;
   imagen: string;
+}
+
+// Interfaz para Horario obtenido desde la API
+interface Horario {
+  HorarioId: number;
+  horaApertura: string; // formato "HH:mm" o "HH:mm:ss"
+  horaCierre: string;
+  fechaActualizacion: string;
 }
 
 export default function Inicio() {
@@ -32,12 +35,37 @@ export default function Inicio() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
   const [personalizando, setPersonalizando] = useState(false);
   const [menuActivo, setMenuActivo] = useState(false);
-
-  // Estado para controlar el modal del carrito
   const [cartOpen, setCartOpen] = useState(false);
   const { items, clearCart } = useCart();
-
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  // Estado para el Horario obtenido desde la API
+  const [horario, setHorario] = useState<Horario | null>(null);
+
+  // Función que convierte un string "HH:mm" a minutos (0-1440)
+  const timeStringToMinutes = (timeStr: string): number => {
+    const parts = timeStr.split(":");
+    if (parts.length < 2) return 0;
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    return hours * 60 + minutes;
+  };
+
+  // Función para actualizar la disponibilidad del menú usando la zona horaria de Argentina
+  const updateMenuAvailability = () => {
+    if (horario) {
+      const apertura = timeStringToMinutes(horario.horaApertura);
+      const cierre = timeStringToMinutes(horario.horaCierre);
+      // Convertir la hora actual a la zona horaria de Argentina
+      const now = new Date();
+      const argentinaTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+      const currentMinutes = argentinaTime.getHours() * 60 + argentinaTime.getMinutes();
+      setMenuActivo(currentMinutes >= apertura && currentMinutes < cierre);
+    } else {
+      // Si no se obtiene el horario, se activa por defecto
+      setMenuActivo(true);
+    }
+  };
 
   // Cargar productos desde el endpoint
   useEffect(() => {
@@ -72,14 +100,42 @@ export default function Inicio() {
     fetchCategorias();
   }, [apiUrl]);
 
-  // Para pruebas, forzamos que el menú esté activo:
+  // Obtener el horario desde la API
   useEffect(() => {
-    setMenuActivo(true);
-  }, []);
+    async function fetchHorario() {
+      try {
+        const res = await fetch(`${apiUrl}/api/Horarios`, {
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!res.ok) {
+          throw new Error("Error al obtener el horario");
+        }
+        const data: Horario = await res.json();
+        console.log("Horario obtenido:", data);
+        setHorario(data);
+      } catch (error) {
+        console.error("Error al obtener el horario:", error);
+      }
+    }
+    fetchHorario();
+  }, [apiUrl]);
+
+  // Actualiza la disponibilidad del menú cada minuto en base al horario y la hora en Argentina
+  useEffect(() => {
+    updateMenuAvailability();
+    const interval = setInterval(() => {
+      updateMenuAvailability();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [horario]);
 
   // Filtrar productos según la categoría seleccionada
-  const productosFiltrados = categoriaSeleccionada 
-    ? productos.filter(p => p.categoria.toLowerCase() === categoriaSeleccionada.toLowerCase()) 
+  const productosFiltrados = categoriaSeleccionada
+    ? productos.filter(
+        (p) =>
+          p.categoria.toLowerCase() ===
+          categoriaSeleccionada.toLowerCase()
+      )
     : [];
 
   return (
@@ -102,7 +158,9 @@ export default function Inicio() {
         <div className="flex flex-col items-center text-center p-6">
           <h1 className="text-5xl font-bold mb-6">Bienvenidos</h1>
           <p className="text-lg text-gray-700 max-w-2xl mb-8">
-            Disfruta de los sabores más irresistibles, con ingredientes frescos y de calidad. Pedi tu hamburguesa clásica favorita, o armala a gusto con la gran variedad de toppings con los que contamos!
+            Disfruta de los sabores más irresistibles, con ingredientes frescos y de calidad.
+            Pedí tu hamburguesa clásica favorita, o armala a gusto con la gran variedad de toppings
+            con los que contamos!
           </p>
           <Image 
             src="https://i.ibb.co/TqHL0pP2/Fondo.jpg" 
@@ -112,9 +170,15 @@ export default function Inicio() {
             className="rounded-lg shadow-lg object-cover w-full max-w-3xl"
           />
           <div className="mt-4 border border-gray-300 rounded p-4 shadow">
-            <p className="text-xl font-semibold text-gray-800">
-              Horario de Atención: Todos los dias. {HORARIO_INICIO}hs a {HORARIO_FIN}hs - ¡Te esperamos!
-            </p>
+            {horario ? (
+              <p className="text-xl font-semibold text-gray-800">
+                Horario de Atención: Todos los días. {horario.horaApertura}hs a {horario.horaCierre}hs - ¡Te esperamos!
+              </p>
+            ) : (
+              <p className="text-xl font-semibold text-gray-800">
+                Horario de Atención: 19:30hs a 23:30hs - ¡Te esperamos!
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -148,17 +212,17 @@ export default function Inicio() {
                   </>
                 ) : (
                   <div className="border border-gray-300 rounded p-4 shadow inline-block text-2xl font-bold text-center">
-                    Nuestro menú estará disponible de {HORARIO_INICIO}hs a {HORARIO_FIN}hs
+                    Nuestro menú estará disponible de {horario ? horario.horaApertura : "19:30"}hs a {horario ? horario.horaCierre : "23:30"}hs
                   </div>
                 )}
               </>
             ) : (
               <>
                 <h2 className="text-3xl font-semibold mb-6 text-center">
-                  {categorias.find(c => c.key === categoriaSeleccionada)?.nombre}
+                  {categorias.find((c) => c.key === categoriaSeleccionada)?.nombre}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center">
-                  {productosFiltrados.map(producto => (
+                  {productosFiltrados.map((producto) => (
                     <ProductCard 
                       key={producto.id} 
                       producto={producto} 
@@ -186,7 +250,8 @@ export default function Inicio() {
           <>
             <h1 className="text-5xl font-bold mb-6">Contáctanos</h1>
             <p className="text-lg text-gray-700 max-w-2xl mb-8 mx-auto">
-              ¡Estamos aquí para atenderte! Puedes visitarnos, o escribirnos por WhatsApp para cualquier consulta. También podes visitar nuestro perfil de Instagram!
+              ¡Estamos aquí para atenderte! Puedes visitarnos, o escribirnos por WhatsApp para cualquier consulta.
+              También podes visitar nuestro perfil de Instagram!
             </p>
             <div className="mb-4">
               <SocialMedia />

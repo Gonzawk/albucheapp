@@ -1,50 +1,71 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import NavBarAdmin from "@/app/components/NavBarAdmin";
-import FooterAdmin from "@/app/components/FooterAdmin";
+'use client';
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import React, { useState, useContext, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AuthContext } from '@/app/context/AuthContext';
+
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [keepSession, setKeepSession] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
+  const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí implementas la lógica de autenticación.
-    // Por ejemplo, puedes llamar a tu API de login.
+    setError('');
+
+    if (!isValidEmail(email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
     try {
-      // Ejemplo: await login({ email, password, keepSession });
-      // Si es exitoso, redirige a /admin-panel
-      console.log("Iniciando sesión con:", { email, password, keepSession });
-      // Resetea el error
-      setError("");
-      // Redireccionar o actualizar el estado según corresponda
-    } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión");
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/api/Auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        setError(`Error al iniciar sesión: ${errorMessage}`);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Respuesta del login:", data);
+
+      // Usa la función login del AuthContext, pasando el token y el flag de sesión persistente.
+      login(data.token, keepSession);
+
+      // Redirigir a /inicio o a la URL de callback si se utiliza
+      router.push(callbackUrl || '/admin-panel');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(`Error en la solicitud: ${err.message}`);
+      } else {
+        setError("Error en la solicitud.");
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 flex flex-col">
-   
-      {/* Imagen superior igual a la de /inicio */}
-      <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
-        <Image
-          src="/admin-banner.jpg" // O la URL de la imagen de portada
-          alt="Imagen de Portada"
-          fill
-          style={{ objectFit: "cover" }}
-          className="w-full h-full"
-          priority
-        />
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-      </header>
-
-      {/* Formulario de login */}
-      <div className="flex flex-grow items-center justify-center py-8 px-4">
+    <>
+     <div>
+        <h1 className="mt-3  text-center">Administrador ALBUCHE.</h1>
+      </div>
+      <div className="min-h-screen bg-black-800 flex items-center justify-center py-8 px-4">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
           <h1 className="text-2xl font-bold text-center mb-6 text-black">
             Iniciar Sesión
@@ -91,15 +112,45 @@ export default function Login() {
             </div>
             <button 
               type="submit"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition-colors"
+              className="w-full bg-green-500 hover:bg-blue-600 text-white py-2 rounded transition-colors"
             >
               Iniciar Sesión
             </button>
           </form>
-          
+          <div className="mt-4 text-center">
+            {/* <p className="text-sm text-black">
+              ¿No tienes cuenta?{' '}
+              <Link
+                href={`/registro?callbackUrl=${encodeURIComponent(callbackUrl || '/catalogo')}`}
+                className="text-blue-500 hover:underline"
+              >
+                Registrarse
+              </Link>
+            </p>
+            <p className="mt-2 text-sm text-black">
+              ¿Olvidaste tu contraseña?{' '}
+              <Link href="/restablecer-clave" className="text-blue-500 hover:underline">
+                Restablecer
+              </Link>
+            </p> */}
+            <p className="mt-2 text-sm text-black">
+              <Link href="/" className="text-greem-500 hover:underline">
+                Inicio
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
-
-    </div>
+    </>
   );
-}
+};
+
+const LoginPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Login />
+    </Suspense>
+  );
+};
+
+export default LoginPage;

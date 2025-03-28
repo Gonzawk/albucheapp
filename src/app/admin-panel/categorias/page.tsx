@@ -132,12 +132,13 @@ export default function CategoriasPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <NavBarAdmin />
 
+      {/* Cabecera con imagen de portada */}
       <header className="relative w-full h-40 md:h-56 overflow-hidden">
         <Image
-          src="/admin-banner.jpg"
+          src="/img/Albucheportadaweb.jpg" // Esta imagen se encuentra en la carpeta public
           alt="Panel de Administración"
           fill
           style={{ objectFit: "cover" }}
@@ -162,7 +163,7 @@ export default function CategoriasPanel() {
               onChange={(e) =>
                 setSearchType(e.target.value as "id" | "nombre")
               }
-              className="border border-gray-300 p-2 rounded"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded text-gray-900 dark:text-gray-100"
             >
               <option value="id">Buscar por ID</option>
               <option value="nombre">Buscar por Nombre</option>
@@ -176,13 +177,13 @@ export default function CategoriasPanel() {
               }
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="flex-1 border border-gray-300 p-2 rounded"
+              className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 p-2 rounded text-gray-900 dark:text-gray-100"
             />
           </div>
           <div className="flex gap-2">
             <button
               onClick={fetchCategorias}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
             >
               Buscar
             </button>
@@ -191,13 +192,13 @@ export default function CategoriasPanel() {
                 setSearchValue("");
                 fetchCategorias();
               }}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
             >
               Limpiar
             </button>
             <button
               onClick={openModalForCreate}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
             >
               Agregar Categoría
             </button>
@@ -213,7 +214,7 @@ export default function CategoriasPanel() {
           <p className="text-center">No hay categorías.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 text-sm md:text-base">
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm md:text-base">
               <thead>
                 <tr>
                   <th className="py-2 px-4 border-b">ID</th>
@@ -241,13 +242,13 @@ export default function CategoriasPanel() {
                     <td className="py-2 px-4 border-b space-x-2">
                       <button
                         onClick={() => openModalForEdit(cat)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs md:text-sm hover:bg-blue-600"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs md:text-sm transition-colors"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => handleDelete(cat.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-xs md:text-sm hover:bg-red-600"
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs md:text-sm transition-colors"
                       >
                         Eliminar
                       </button>
@@ -267,8 +268,8 @@ export default function CategoriasPanel() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
-              <h2 className="text-2xl font-bold mb-4 text-center">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+              <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">
                 {selectedCategoria ? "Editar Categoría" : "Nueva Categoría"}
               </h2>
               <form
@@ -279,32 +280,38 @@ export default function CategoriasPanel() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block font-semibold mb-1">Nombre</label>
+                  <label className="block font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                    Nombre
+                  </label>
                   <input
                     type="text"
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
-                    className="w-full border border-gray-300 p-2 rounded"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Key</label>
+                  <label className="block font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                    Key
+                  </label>
                   <input
                     type="text"
                     value={categoriaKey}
                     onChange={(e) => setCategoriaKey(e.target.value)}
-                    className="w-full border border-gray-300 p-2 rounded"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Imagen (URL)</label>
+                  <label className="block font-semibold mb-1 text-gray-900 dark:text-gray-100">
+                    Imagen (URL)
+                  </label>
                   <input
                     type="url"
                     value={imagen}
                     onChange={(e) => setImagen(e.target.value)}
-                    className="w-full border border-gray-300 p-2 rounded"
+                    className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded text-gray-900 dark:text-gray-100 dark:bg-gray-700"
                     required
                   />
                 </div>
@@ -312,11 +319,11 @@ export default function CategoriasPanel() {
                   <button
                     type="button"
                     onClick={() => setMostrarModal(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded"
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                  <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
                     {selectedCategoria ? "Actualizar" : "Crear"}
                   </button>
                 </div>
