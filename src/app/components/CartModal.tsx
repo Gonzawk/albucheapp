@@ -24,7 +24,34 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const [mostrarConfirmacionPedido, setMostrarConfirmacionPedido] = useState(false);
   const [mostrarVaciarCarrito, setMostrarVaciarCarrito] = useState(false);
 
+  // Nuevo estado para indicar si se utiliza la ubicación actual (para Calle y Número)
+  const [usarUbicacionActual, setUsarUbicacionActual] = useState(false);
+  // Nuevo estado para controlar si se muestran los campos adicionales (Piso y Departamento)
+  const [mostrarCamposExtras, setMostrarCamposExtras] = useState(false);
+
   const totalCarrito = items.reduce((sum, item) => sum + item.precio, 0);
+
+  // Función para obtener la ubicación a través de la API del navegador
+  const obtenerUbicacion = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          // Se almacenan las coordenadas en los campos "calle" y "número"
+          setCalle(`Lat: ${lat.toFixed(6)}`);
+          setNumero(`Lng: ${lng.toFixed(6)}`);
+          // Se ocultan los campos Calle y Número (ya que se autocompletaron)
+          setUsarUbicacionActual(true);
+        },
+        (error) => {
+          alert("No se pudo obtener la ubicación: " + error.message);
+        }
+      );
+    } else {
+      alert("La geolocalización no es soportada por su navegador.");
+    }
+  };
 
   const generarPedido = async () => {
     let mensaje = "NUEVO PEDIDO!\n\n";
@@ -41,7 +68,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               conQueso: boolean;
               tipoQueso: string;
             };
-            // Toppings ahora es un array de objetos con id, nombre y precio
             toppings: { id: number; nombre: string; precio: number }[];
             aderezos?: string[];
             observaciones?: string;
@@ -183,7 +209,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     if (metodoEntrega) {
       mensaje += `Método de entrega: ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
       if (metodoEntrega === "delivery") {
-        mensaje += `Dirección: Calle ${calle}, Número ${numero}`;
+        mensaje += `Dirección: `;
+        // Se muestran calle y número si se ingresaron manualmente o se obtuvo la ubicación
+        mensaje += `Calle: ${calle}, Número: ${numero}`;
         if (piso.trim()) mensaje += `, Piso: ${piso}`;
         if (departamento.trim()) mensaje += `, Departamento: ${departamento}`;
         mensaje += "\n";
@@ -201,6 +229,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     const pedidoData = {
       nombreCliente,
       metodoEntrega,
+      // Se envía el objeto dirección con los valores correspondientes
       direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
       metodoPago,
       items,
@@ -522,34 +551,84 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </div>
                   {metodoEntrega === "delivery" && (
                     <div className="mt-4">
-                      <input
-                        type="text"
-                        placeholder="Calle"
-                        value={calle}
-                        onChange={(e) => setCalle(e.target.value)}
-                        className="w-full p-2 border rounded mb-2"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Número"
-                        value={numero}
-                        onChange={(e) => setNumero(e.target.value)}
-                        className="w-full p-2 border rounded mb-2"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Piso"
-                        value={piso}
-                        onChange={(e) => setPiso(e.target.value)}
-                        className="w-full p-2 border rounded mb-2"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Departamento"
-                        value={departamento}
-                        onChange={(e) => setDepartamento(e.target.value)}
-                        className="w-full p-2 border rounded"
-                      />
+                      {!usarUbicacionActual ? (
+                        <>
+                          <button
+                            onClick={obtenerUbicacion}
+                            className="bg-blue-500 text-white px-4 py-2 rounded mb-2"
+                          >
+                            Utilizar mi ubicación actual
+                          </button>
+                          <input
+                            type="text"
+                            placeholder="Calle"
+                            value={calle}
+                            onChange={(e) => setCalle(e.target.value)}
+                            className="w-full p-2 border rounded mb-2"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Número"
+                            value={numero}
+                            onChange={(e) => setNumero(e.target.value)}
+                            className="w-full p-2 border rounded mb-2"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Piso"
+                            value={piso}
+                            onChange={(e) => setPiso(e.target.value)}
+                            className="w-full p-2 border rounded mb-2"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Departamento"
+                            value={departamento}
+                            onChange={(e) => setDepartamento(e.target.value)}
+                            className="w-full p-2 border rounded"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <p className="mb-2">
+                            Ubicación actual obtenida{/* : <span className="font-semibold">{calle}</span> y{" "}
+                            <span className="font-semibold">{numero}</span>. */}
+                          </p>
+                          <div className="flex gap-4 mb-2 items-center">
+                            <span className="text-sm">¿Desea indicar piso o depto?</span>
+                            <button
+                              onClick={() => setMostrarCamposExtras(true)}
+                              className="bg-green-500 text-white px-4 py-2 rounded text-sm"
+                            >
+                              Sí
+                            </button>
+                            <button
+                              onClick={() => setMostrarCamposExtras(false)}
+                              className="bg-gray-200 text-black px-4 py-2 rounded text-sm"
+                            >
+                              No
+                            </button>
+                          </div>
+                          {mostrarCamposExtras && (
+                            <div className="flex flex-col gap-2">
+                              <input
+                                type="text"
+                                placeholder="Piso"
+                                value={piso}
+                                onChange={(e) => setPiso(e.target.value)}
+                                className="w-full p-2 border rounded"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Departamento"
+                                value={departamento}
+                                onChange={(e) => setDepartamento(e.target.value)}
+                                className="w-full p-2 border rounded"
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

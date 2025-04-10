@@ -93,6 +93,19 @@ export default function ConfiguracionPanel() {
                 Configurar Horarios
               </Link>
             </div>
+             {/* Card 4: Repartidores */}
+             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-bold mb-2">Repartidores</h3>
+              <p className="mb-4">
+                Gestiona los repartidores y configura sus datos.
+              </p>
+              <Link
+                href="/admin-panel/delivery"
+                className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded transition-colors"
+              >
+                Configurar Repartidores
+              </Link>
+            </div>
           </div>
         </main>
       </div>

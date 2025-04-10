@@ -19,6 +19,30 @@ interface OrderDetailsProps {
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
+  // Verifica si se usaron coordenadas (geolocalización) evaluando si la calle inicia con "Lat:"
+  const isGeolocalizacion = data.direccion?.calle?.startsWith("Lat:");
+  let direccionTexto = "";
+  if (isGeolocalizacion) {
+    // Extrae las coordenadas
+    const lat = data.direccion?.calle.replace("Lat:", "").trim();
+    const lng = data.direccion?.numero.replace("Lng:", "").trim();
+    direccionTexto = `${lat}, ${lng}`;
+    if (data.direccion?.piso?.trim()) {
+      direccionTexto += `, Piso: ${data.direccion.piso}`;
+    }
+    if (data.direccion?.departamento?.trim()) {
+      direccionTexto += `, Dept: ${data.direccion.departamento}`;
+    }
+  } else if (data.direccion) {
+    direccionTexto = `Calle ${data.direccion.calle}, Nº ${data.direccion.numero}`;
+    if (data.direccion.piso) {
+      direccionTexto += `, Piso: ${data.direccion.piso}`;
+    }
+    if (data.direccion.departamento) {
+      direccionTexto += `, Dept: ${data.direccion.departamento}`;
+    }
+  }
+
   return (
     <div>
       {data.nombreCliente && (
@@ -34,9 +58,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
       )}
       {data.metodoEntrega === "delivery" && data.direccion && (
         <p>
-          <strong>Dirección:</strong> Calle {data.direccion.calle}, Nº {data.direccion.numero}
-          {data.direccion.piso && `, Piso: ${data.direccion.piso}`}
-          {data.direccion.departamento && `, Dept: ${data.direccion.departamento}`}
+          <strong>{isGeolocalizacion ? "Ubicación:" : "Dirección:"}</strong>{" "}
+          {direccionTexto}
         </p>
       )}
       {data.metodoPago && (
@@ -63,26 +86,20 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                 <div className="ml-4">
                   <p className="font-bold">Promo Tipo 1:</p>
                   <p>
-                    Mayonesa:{" "}
-                    {item.personalizacion.personalizacion.conMayonesa ? "Sí" : "No"}
+                    Mayonesa: {item.personalizacion.personalizacion.conMayonesa ? "Sí" : "No"}
                   </p>
                   <p>
-                    Con queso:{" "}
-                    {item.personalizacion.personalizacion.conQueso ? "Sí" : "No"}
+                    Con queso: {item.personalizacion.personalizacion.conQueso ? "Sí" : "No"}
                   </p>
                   {item.personalizacion.personalizacion.conQueso &&
                     item.personalizacion.personalizacion.tipoQueso && (
-                      <p>
-                        Tipo de queso: {item.personalizacion.personalizacion.tipoQueso}
-                      </p>
+                      <p>Tipo de queso: {item.personalizacion.personalizacion.tipoQueso}</p>
                     )}
                   {item.personalizacion.toppings &&
                     item.personalizacion.toppings.length > 0 && (
                       <p>
                         Toppings:{" "}
-                        {item.personalizacion.toppings
-                          .map((t: any) => t.nombre)
-                          .join(", ")}
+                        {item.personalizacion.toppings.map((t: any) => t.nombre).join(", ")}
                       </p>
                     )}
                   {item.personalizacion.aderezos &&
@@ -106,24 +123,18 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                   <div>
                     <p className="font-semibold">Subproducto 1:</p>
                     <p>
-                      Mayonesa:{" "}
-                      {item.personalizacion.subproducto1.conMayonesa ? "Sí" : "No"}
+                      Mayonesa: {item.personalizacion.subproducto1.conMayonesa ? "Sí" : "No"}
                     </p>
                     <p>
-                      Con queso:{" "}
-                      {item.personalizacion.subproducto1.conQueso ? "Sí" : "No"}
+                      Con queso: {item.personalizacion.subproducto1.conQueso ? "Sí" : "No"}
                     </p>
                     {item.personalizacion.subproducto1.conQueso &&
                       item.personalizacion.subproducto1.tipoQueso && (
-                        <p>
-                          Tipo de queso: {item.personalizacion.subproducto1.tipoQueso}
-                        </p>
+                        <p>Tipo de queso: {item.personalizacion.subproducto1.tipoQueso}</p>
                       )}
                     {item.personalizacion.subproducto1.aderezos &&
                       item.personalizacion.subproducto1.aderezos.length > 0 && (
-                        <p>
-                          Aderezos: {item.personalizacion.subproducto1.aderezos.join(", ")}
-                        </p>
+                        <p>Aderezos: {item.personalizacion.subproducto1.aderezos.join(", ")}</p>
                       )}
                     {item.personalizacion.subproducto1.observaciones &&
                       item.personalizacion.subproducto1.observaciones.trim() && (
@@ -136,24 +147,18 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                   <div>
                     <p className="font-semibold">Subproducto 2:</p>
                     <p>
-                      Mayonesa:{" "}
-                      {item.personalizacion.subproducto2.conMayonesa ? "Sí" : "No"}
+                      Mayonesa: {item.personalizacion.subproducto2.conMayonesa ? "Sí" : "No"}
                     </p>
                     <p>
-                      Con queso:{" "}
-                      {item.personalizacion.subproducto2.conQueso ? "Sí" : "No"}
+                      Con queso: {item.personalizacion.subproducto2.conQueso ? "Sí" : "No"}
                     </p>
                     {item.personalizacion.subproducto2.conQueso &&
                       item.personalizacion.subproducto2.tipoQueso && (
-                        <p>
-                          Tipo de queso: {item.personalizacion.subproducto2.tipoQueso}
-                        </p>
+                        <p>Tipo de queso: {item.personalizacion.subproducto2.tipoQueso}</p>
                       )}
                     {item.personalizacion.subproducto2.aderezos &&
                       item.personalizacion.subproducto2.aderezos.length > 0 && (
-                        <p>
-                          Aderezos: {item.personalizacion.subproducto2.aderezos.join(", ")}
-                        </p>
+                        <p>Aderezos: {item.personalizacion.subproducto2.aderezos.join(", ")}</p>
                       )}
                     {item.personalizacion.subproducto2.observaciones &&
                       item.personalizacion.subproducto2.observaciones.trim() && (
@@ -181,10 +186,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                   {item.personalizacion.toppings &&
                     item.personalizacion.toppings.length > 0 && (
                       <p>
-                        Toppings:{" "}
-                        {item.personalizacion.toppings
-                          .map((t: any) => t.nombre)
-                          .join(", ")}
+                        Toppings: {item.personalizacion.toppings.map((t: any) => t.nombre).join(", ")}
                       </p>
                     )}
                   {item.personalizacion.aderezos &&
@@ -212,10 +214,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                   {item.personalizacion.toppings &&
                     item.personalizacion.toppings.length > 0 && (
                       <p>
-                        Toppings:{" "}
-                        {item.personalizacion.toppings
-                          .map((t: any) => t.nombre)
-                          .join(", ")}
+                        Toppings: {item.personalizacion.toppings.map((t: any) => t.nombre).join(", ")}
                       </p>
                     )}
                   {item.personalizacion.observaciones &&
