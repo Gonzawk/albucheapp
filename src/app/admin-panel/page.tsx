@@ -155,7 +155,22 @@ export default function AdminPanel() {
               Ir a Configuración
             </Link>
           </div>
-          {/* Card 5: Información General */}
+          {/* Card 5: Administracion Deliverys */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
+              Administracion de Repartidores
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Modulo de administracion de los repartidores para envios.
+            </p>
+            <Link
+              href="/admin-panel/deliverys"
+              className="block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded transition-colors"
+            >
+              Ir a Repartidores
+            </Link>
+          </div>
+          {/* Card 6: Información General */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
               Información General
