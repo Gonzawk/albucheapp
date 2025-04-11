@@ -24,29 +24,29 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const [mostrarConfirmacionPedido, setMostrarConfirmacionPedido] = useState(false);
   const [mostrarVaciarCarrito, setMostrarVaciarCarrito] = useState(false);
 
-  // Nuevo estado para indicar si se utiliza la ubicación actual (para Calle y Número)
+  // Si se utiliza la ubicación actual, se autocompletan calle y número (no editables)
   const [usarUbicacionActual, setUsarUbicacionActual] = useState(false);
-  // Nuevo estado para controlar si se muestran los campos adicionales (Piso y Departamento)
+  // Controla si se muestran los campos extras para piso y depto cuando se usa geolocalización
   const [mostrarCamposExtras, setMostrarCamposExtras] = useState(false);
 
   const totalCarrito = items.reduce((sum, item) => sum + item.precio, 0);
 
-  // Función para obtener la ubicación a través de la API del navegador
+  // Obtiene la ubicación con alta precisión y autocompleta Calle y Número
   const obtenerUbicacion = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          // Se almacenan las coordenadas en los campos "calle" y "número"
+          // Se guardan las coordenadas con prefijos para identificar que se usó geolocalización
           setCalle(`Lat: ${lat.toFixed(6)}`);
           setNumero(`Lng: ${lng.toFixed(6)}`);
-          // Se ocultan los campos Calle y Número (ya que se autocompletaron)
           setUsarUbicacionActual(true);
         },
         (error) => {
           alert("No se pudo obtener la ubicación: " + error.message);
-        }
+        },
+        { enableHighAccuracy: true }
       );
     } else {
       alert("La geolocalización no es soportada por su navegador.");
@@ -58,16 +58,12 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     if (nombreCliente.trim()) {
       mensaje += `Nombre del Cliente: ${nombreCliente}\n\n`;
     }
-    items.forEach(item => {
+    items.forEach((item) => {
       switch (item.personalizacion.tipo) {
         case TipoProducto.Tipo1: {
           const p = item.personalizacion as {
             tipo: TipoProducto.Tipo1;
-            personalizacion: {
-              conMayonesa: boolean;
-              conQueso: boolean;
-              tipoQueso: string;
-            };
+            personalizacion: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string };
             toppings: { id: number; nombre: string; precio: number }[];
             aderezos?: string[];
             observaciones?: string;
@@ -79,7 +75,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             mensaje += `Tipo de queso: ${p.personalizacion.tipoQueso}\n`;
           }
           if (p.toppings && p.toppings.length > 0) {
-            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
+            mensaje += `Toppings: ${p.toppings.map((t) => t.nombre).join(", ")}\n`;
           }
           if (p.aderezos && p.aderezos.length > 0) {
             mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
@@ -93,20 +89,8 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         case TipoProducto.Tipo2: {
           const p = item.personalizacion as {
             tipo: TipoProducto.Tipo2;
-            subproducto1: {
-              conMayonesa: boolean;
-              conQueso: boolean;
-              tipoQueso: string;
-              aderezos: string[];
-              observaciones: string;
-            };
-            subproducto2: {
-              conMayonesa: boolean;
-              conQueso: boolean;
-              tipoQueso: string;
-              aderezos: string[];
-              observaciones: string;
-            };
+            subproducto1: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string; aderezos: string[]; observaciones: string };
+            subproducto2: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string; aderezos: string[]; observaciones: string };
           };
           mensaje += `🍔 *${item.producto.nombre} (Tipo 2)* 🍔\n\n`;
           mensaje += `*Subproducto 1:*\n`;
@@ -154,7 +138,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             mensaje += `Tipo de queso: ${p.tipoQueso}\n`;
           }
           if (p.toppings && p.toppings.length > 0) {
-            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
+            mensaje += `Toppings: ${p.toppings.map((t) => t.nombre).join(", ")}\n`;
           }
           if (p.aderezos && p.aderezos.length > 0) {
             mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
@@ -180,7 +164,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             mensaje += `Aderezos: ${p.aderezos.join(", ")}\n`;
           }
           if (p.toppings && p.toppings.length > 0) {
-            mensaje += `Toppings: ${p.toppings.map(t => t.nombre).join(", ")}\n`;
+            mensaje += `Toppings: ${p.toppings.map((t) => t.nombre).join(", ")}\n`;
           }
           if (p.observaciones && p.observaciones.trim()) {
             mensaje += `Observaciones: ${p.observaciones}\n`;
@@ -209,12 +193,24 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     if (metodoEntrega) {
       mensaje += `Método de entrega: ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
       if (metodoEntrega === "delivery") {
-        mensaje += `Dirección: `;
-        // Se muestran calle y número si se ingresaron manualmente o se obtuvo la ubicación
-        mensaje += `Calle: ${calle}, Número: ${numero}`;
-        if (piso.trim()) mensaje += `, Piso: ${piso}`;
-        if (departamento.trim()) mensaje += `, Departamento: ${departamento}`;
-        mensaje += "\n";
+        // Para el mensaje se arma la dirección completa, incluyendo piso y departamento (si se ingresan)
+        let mensajeDireccion = "";
+        let mapsQuery = "";
+        if (calle.startsWith("Lat:")) {
+          const lat = calle.replace("Lat:", "").trim();
+          const lng = numero.replace("Lng:", "").trim();
+          mensajeDireccion = `Ubicación: ${lat}, ${lng}`;
+          mapsQuery = `${lat},${lng}`;
+        } else {
+          mensajeDireccion = `Dirección: Calle ${calle}, Nº ${numero}`;
+          mapsQuery = `Calle ${calle}, Nº ${numero}`;
+        }
+        // Se adjunta piso y depto en el mensaje (pero no se usan en el enlace)
+        if (piso.trim()) mensajeDireccion += `, Piso: ${piso}`;
+        if (departamento.trim()) mensajeDireccion += `, Departamento: ${departamento}`;
+        mensaje += `${mensajeDireccion}\n`;
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`;
+        mensaje += `Ver ubicación en Maps: ${googleMapsUrl}\n`;
       }
     }
     if (metodoPago) {
@@ -229,7 +225,6 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     const pedidoData = {
       nombreCliente,
       metodoEntrega,
-      // Se envía el objeto dirección con los valores correspondientes
       direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
       metodoPago,
       items,
@@ -273,10 +268,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     <>
       <motion.div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 w-11/12 max-w-lg mx-4 h-5/6 overflow-y-auto relative rounded shadow-lg">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-          >
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
             Cerrar
           </button>
           <h2 className="text-2xl font-bold mb-4 text-center">Carrito</h2>
@@ -284,16 +276,12 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             <p className="text-center">No hay productos en el carrito.</p>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {items.map(item => {
+              {items.map((item) => {
                 switch (item.personalizacion.tipo) {
                   case TipoProducto.Tipo1: {
                     const p = item.personalizacion as {
                       tipo: TipoProducto.Tipo1;
-                      personalizacion: {
-                        conMayonesa: boolean;
-                        conQueso: boolean;
-                        tipoQueso: string;
-                      };
+                      personalizacion: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string };
                       toppings: { id: number; nombre: string; precio: number }[];
                       aderezos?: string[];
                       observaciones?: string;
@@ -311,7 +299,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                             <li>Tipo de queso: {p.personalizacion.tipoQueso}</li>
                           )}
                           {p.toppings && p.toppings.length > 0 && (
-                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                            <li>Toppings: {p.toppings.map((t) => t.nombre).join(", ")}</li>
                           )}
                           {p.aderezos && p.aderezos.length > 0 && (
                             <li>Aderezos: {p.aderezos.join(", ")}</li>
@@ -334,20 +322,8 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   case TipoProducto.Tipo2: {
                     const p = item.personalizacion as {
                       tipo: TipoProducto.Tipo2;
-                      subproducto1: {
-                        conMayonesa: boolean;
-                        conQueso: boolean;
-                        tipoQueso: string;
-                        aderezos: string[];
-                        observaciones: string;
-                      };
-                      subproducto2: {
-                        conMayonesa: boolean;
-                        conQueso: boolean;
-                        tipoQueso: string;
-                        aderezos: string[];
-                        observaciones: string;
-                      };
+                      subproducto1: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string; aderezos: string[]; observaciones: string };
+                      subproducto2: { conMayonesa: boolean; conQueso: boolean; tipoQueso: string; aderezos: string[]; observaciones: string };
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
@@ -437,10 +413,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           )}
                         </ul>
                         <div className="mt-2 flex justify-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
+                          <button onClick={() => removeItem(item.id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">
                             Eliminar
                           </button>
                         </div>
@@ -472,10 +445,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           )}
                         </ul>
                         <div className="mt-2 flex justify-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
+                          <button onClick={() => removeItem(item.id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">
                             Eliminar
                           </button>
                         </div>
@@ -490,9 +460,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">
-                          {item.producto.nombre}
-                        </h3>
+                        <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
                         <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
                         <ul className="text-sm text-gray-700 mt-2 space-y-1">
                           {p.observaciones && p.observaciones.trim() && (
@@ -500,10 +468,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           )}
                         </ul>
                         <div className="mt-2 flex justify-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
+                          <button onClick={() => removeItem(item.id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">
                             Eliminar
                           </button>
                         </div>
@@ -533,17 +498,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <p className="font-bold">Método de Entrega</p>
                   <div className="mt-2 flex justify-center gap-4">
                     <button
-                      className={`px-4 py-2 rounded ${
-                        metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
-                      }`}
+                      className={`px-4 py-2 rounded ${metodoEntrega === "retiro" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
                       onClick={() => setMetodoEntrega("retiro")}
                     >
                       Retiro en el Local
                     </button>
                     <button
-                      className={`px-4 py-2 rounded ${
-                        metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
-                      }`}
+                      className={`px-4 py-2 rounded ${metodoEntrega === "delivery" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
                       onClick={() => setMetodoEntrega("delivery")}
                     >
                       Delivery
@@ -553,10 +514,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     <div className="mt-4">
                       {!usarUbicacionActual ? (
                         <>
-                          <button
-                            onClick={obtenerUbicacion}
-                            className="bg-blue-500 text-white px-4 py-2 rounded mb-2"
-                          >
+                          <button onClick={obtenerUbicacion} className="bg-blue-500 text-white px-4 py-2 rounded mb-2">
                             Utilizar mi ubicación actual
                           </button>
                           <input
@@ -591,21 +549,15 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                       ) : (
                         <>
                           <p className="mb-2">
-                            Ubicación actual obtenida{/* : <span className="font-semibold">{calle}</span> y{" "}
-                            <span className="font-semibold">{numero}</span>. */}
+                            Ubicación actual obtenida: <span className="font-semibold">{calle}</span> y{" "}
+                            <span className="font-semibold">{numero}</span>.
                           </p>
                           <div className="flex gap-4 mb-2 items-center">
                             <span className="text-sm">¿Desea indicar piso o depto?</span>
-                            <button
-                              onClick={() => setMostrarCamposExtras(true)}
-                              className="bg-green-500 text-white px-4 py-2 rounded text-sm"
-                            >
+                            <button onClick={() => setMostrarCamposExtras(true)} className="bg-green-500 text-white px-4 py-2 rounded text-sm">
                               Sí
                             </button>
-                            <button
-                              onClick={() => setMostrarCamposExtras(false)}
-                              className="bg-gray-200 text-black px-4 py-2 rounded text-sm"
-                            >
+                            <button onClick={() => setMostrarCamposExtras(false)} className="bg-gray-200 text-black px-4 py-2 rounded text-sm">
                               No
                             </button>
                           </div>
@@ -636,17 +588,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <p className="font-bold">Método de Pago</p>
                   <div className="mt-2 flex justify-center gap-4">
                     <button
-                      className={`px-4 py-2 rounded ${
-                        metodoPago === "Efectivo" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
-                      }`}
+                      className={`px-4 py-2 rounded ${metodoPago === "Efectivo" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
                       onClick={() => setMetodoPago("Efectivo")}
                     >
                       Efectivo
                     </button>
                     <button
-                      className={`px-4 py-2 rounded ${
-                        metodoPago === "Transferencia" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
-                      }`}
+                      className={`px-4 py-2 rounded ${metodoPago === "Transferencia" ? "bg-green-500 text-white" : "bg-gray-200 text-black"}`}
                       onClick={() => setMetodoPago("Transferencia")}
                     >
                       Transferencia
@@ -668,10 +616,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 </div>
                 <p className="text-lg font-bold mt-0 mb-2">Total del Carrito: ${totalCarrito}</p>
               </div>
-              <button
-                onClick={generarPedido}
-                className="bg-blue-600 text-white px-4 py-2 rounded w-full"
-              >
+              <button onClick={generarPedido} className="bg-blue-600 text-white px-4 py-2 rounded w-full">
                 Realizar Pedido
               </button>
             </>
@@ -735,10 +680,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               >
                 Sí
               </button>
-              <button
-                onClick={() => setMostrarVaciarCarrito(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
+              <button onClick={() => setMostrarVaciarCarrito(false)} className="bg-red-500 text-white px-4 py-2 rounded">
                 No
               </button>
             </div>
