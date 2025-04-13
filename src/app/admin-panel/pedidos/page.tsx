@@ -47,7 +47,7 @@ export default function PedidosPanel() {
   const [availableDeliveryPersons, setAvailableDeliveryPersons] = useState<DeliveryPerson[]>([]);
   const [assignments, setAssignments] = useState<Asignacion[]>([]);
 
-  // Estado para los registros de la caja (declarado solo una vez)
+  // Estado para los registros de la caja
   const [cajaRecords, setCajaRecords] = useState<CajaRecord[]>([]);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -56,9 +56,7 @@ export default function PedidosPanel() {
   const fetchDeliveryPersons = async () => {
     try {
       const res = await fetch(`${apiUrl}/api/Repartidores`);
-      if (!res.ok) {
-        throw new Error("Error al obtener los repartidores");
-      }
+      if (!res.ok) throw new Error("Error al obtener los repartidores");
       const data = await res.json();
       setAvailableDeliveryPersons(data);
     } catch (err: any) {
@@ -70,9 +68,7 @@ export default function PedidosPanel() {
   const fetchAssignments = async () => {
     try {
       const res = await fetch(`${apiUrl}/api/RepartidorPedidos`);
-      if (!res.ok) {
-        throw new Error("Error al obtener asignaciones");
-      }
+      if (!res.ok) throw new Error("Error al obtener asignaciones");
       const data = await res.json();
       setAssignments(data);
     } catch (err: any) {
@@ -84,9 +80,7 @@ export default function PedidosPanel() {
   const fetchCajaRecords = async () => {
     try {
       const res = await fetch(`${apiUrl}/api/Caja`);
-      if (!res.ok) {
-        throw new Error("Error al obtener registros de caja");
-      }
+      if (!res.ok) throw new Error("Error al obtener registros de caja");
       const data = await res.json();
       setCajaRecords(data);
     } catch (err: any) {
@@ -100,9 +94,7 @@ export default function PedidosPanel() {
     setError("");
     try {
       const res = await fetch(`${apiUrl}/api/pedidos`);
-      if (!res.ok) {
-        throw new Error("Error al obtener los pedidos");
-      }
+      if (!res.ok) throw new Error("Error al obtener los pedidos");
       const data: Pedido[] = await res.json();
       const filtered = filterEstado === "Todos" ? data : data.filter((pedido) => pedido.estado === filterEstado);
       setPedidos(filtered);
@@ -130,9 +122,7 @@ export default function PedidosPanel() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) {
-        throw new Error("Error al confirmar el pedido");
-      }
+      if (!res.ok) throw new Error("Error al confirmar el pedido");
       setPedidos((prev) =>
         prev.map((pedido) =>
           pedido.id === id
@@ -152,9 +142,7 @@ export default function PedidosPanel() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) {
-        throw new Error("Error al completar el pedido");
-      }
+      if (!res.ok) throw new Error("Error al completar el pedido");
       setPedidos((prev) =>
         prev.map((pedido) =>
           pedido.id === id
@@ -220,33 +208,28 @@ export default function PedidosPanel() {
     setShowDeliveryModal(true);
   };
 
-  // Función para asignar delivery mediante POST (llama al SP vía endpoint)
+  // Función para asignar delivery
   const assignDelivery = async () => {
     if (!selectedDeliveryPerson || !selectedDeliveryPedido) {
       alert("Seleccione un repartidor");
       return;
     }
-
     const payload = {
       pedidoID: selectedDeliveryPedido.id,
       repartidorID: selectedDeliveryPerson.id,
     };
-
     try {
       const res = await fetch(`${apiUrl}/api/RepartidorPedidos/assign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        throw new Error("Error al asignar repartidor");
-      }
+      if (!res.ok) throw new Error("Error al asignar repartidor");
       alert("Asignación creada correctamente.");
       fetchAssignments();
     } catch (error: any) {
       alert(error.message || "Error al asignar repartidor");
     }
-
     setShowDeliveryModal(false);
     setSelectedDeliveryPedido(null);
     setSelectedDeliveryPerson(null);
@@ -259,9 +242,7 @@ export default function PedidosPanel() {
       alert("No hay repartidor asignado.");
       return;
     }
-    const assignedRepartidor = availableDeliveryPersons.find(
-      (p) => p.id === assignment.repartidorID
-    );
+    const assignedRepartidor = availableDeliveryPersons.find((p) => p.id === assignment.repartidorID);
     if (!assignedRepartidor) {
       alert("No se encontró información del repartidor asignado.");
       return;
@@ -397,13 +378,9 @@ export default function PedidosPanel() {
                     <tr key={pedido.id} className="text-center">
                       <td className="py-2 px-4 border-b">{pedido.id}</td>
                       <td className="py-2 px-4 border-b">{pedido.estado}</td>
+                      <td className="py-2 px-4 border-b">{new Date(pedido.fechaCreacion).toLocaleString()}</td>
                       <td className="py-2 px-4 border-b">
-                        {new Date(pedido.fechaCreacion).toLocaleString()}
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        {pedido.fechaFinalizacion
-                          ? new Date(pedido.fechaFinalizacion).toLocaleString()
-                          : "-"}
+                        {pedido.fechaFinalizacion ? new Date(pedido.fechaFinalizacion).toLocaleString() : "-"}
                       </td>
                       <td className="py-2 px-4 border-b space-x-2">
                         <button

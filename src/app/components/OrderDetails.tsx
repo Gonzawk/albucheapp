@@ -199,9 +199,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ data }) => {
                     )}
                   {item.personalizacion.observaciones &&
                     item.personalizacion.observaciones.trim() && (
-                      <p>
-                        Observaciones: {item.personalizacion.observaciones}
-                      </p>
+                      <p>Observaciones: {item.personalizacion.observaciones}</p>
                     )}
                 </div>
               )}
