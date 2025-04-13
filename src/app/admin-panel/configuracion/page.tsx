@@ -1,4 +1,6 @@
 "use client";
+import React, { useContext } from "react";
+import { AuthContext } from "@/app/context/AuthContext";
 import { useDarkMode } from "@/app/context/DarkModeContext";
 import NavBarAdmin from "@/app/components/NavBarAdmin";
 import FooterAdmin from "@/app/components/FooterAdmin";
@@ -7,13 +9,36 @@ import Link from "next/link";
 
 export default function ConfiguracionPanel() {
   const { darkMode, toggleDarkMode } = useDarkMode();
+  // Extraemos el token y tokenPayload desde el AuthContext
+  const { token, tokenPayload } = useContext(AuthContext);
+  // Extraemos el id usando la claim necesaria
+  const userId = tokenPayload?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
 
-  // Maneja el toggle y registra en consola el estado antes y después de la actualización
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  // Maneja el toggle calculando el nuevo valor y enviándolo al endpoint con autorización
   const handleToggle = async () => {
     console.log("Toggle dark mode, valor actual:", darkMode);
+    const newDarkMode = !darkMode;
+    if (!userId) {
+      console.error("No se pudo obtener el id del usuario.");
+      return;
+    }
     try {
+      const res = await fetch(`${apiUrl}/api/UserSettings/${userId}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ usuarioId: userId, isDarkMode: newDarkMode }),
+      });
+      if (!res.ok) {
+        throw new Error("Error al actualizar la configuración de dark mode");
+      }
+      // Actualizamos el contexto
       await toggleDarkMode();
-      console.log("Modo actualizado en DB. Nuevo valor:", !darkMode);
+      console.log("Modo actualizado en DB. Nuevo valor:", newDarkMode);
     } catch (error) {
       console.error("Error al togglear dark mode:", error);
     }
@@ -22,7 +47,7 @@ export default function ConfiguracionPanel() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
       <NavBarAdmin />
-      {/* Cabecera con imagen */}
+      {/* Cabecera con imagen de portada */}
       <header className="relative w-full h-48 md:h-64 lg:h-40 overflow-hidden">
         <Image
           src="/img/Albucheportadaweb.jpg"
@@ -33,7 +58,7 @@ export default function ConfiguracionPanel() {
           unoptimized
           priority
         />
-        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="absolute inset-0 bg-black opacity-50" />
         <div className="relative z-10 flex items-center justify-center h-full">
           <h1 className="text-4xl font-bold text-white">Configuración General</h1>
         </div>
@@ -49,7 +74,6 @@ export default function ConfiguracionPanel() {
               <p className="mb-4">
                 Activa o desactiva el modo oscuro en la aplicación y guarda el cambio en la base de datos.
               </p>
-              {/* Toggle slider personalizado */}
               <div className="flex items-center">
                 <span className="mr-3 text-gray-700 dark:text-gray-200">Claro</span>
                 <label htmlFor="toggleDarkMode" className="relative inline-flex items-center cursor-pointer">
@@ -93,14 +117,14 @@ export default function ConfiguracionPanel() {
                 Configurar Horarios
               </Link>
             </div>
-             {/* Card 4: Repartidores */}
-             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+            {/* Card 4: Repartidores */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-xl font-bold mb-2">Repartidores</h3>
               <p className="mb-4">
                 Gestiona los repartidores y configura sus datos.
               </p>
               <Link
-                href="/admin-panel/delivery"
+                href="/admin-panel/deliverys"
                 className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded transition-colors"
               >
                 Configurar Repartidores

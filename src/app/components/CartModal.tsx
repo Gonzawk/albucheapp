@@ -24,21 +24,21 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const [mostrarConfirmacionPedido, setMostrarConfirmacionPedido] = useState(false);
   const [mostrarVaciarCarrito, setMostrarVaciarCarrito] = useState(false);
 
-  // Si se utiliza la ubicación actual, se autocompletan calle y número (no editables)
+  // Si se utiliza la ubicación actual, autocompleta Calle y Número (modo semiautomático)
   const [usarUbicacionActual, setUsarUbicacionActual] = useState(false);
-  // Controla si se muestran los campos extras para piso y depto cuando se usa geolocalización
+  // Controla la visualización de los campos extras para piso y depto
   const [mostrarCamposExtras, setMostrarCamposExtras] = useState(false);
 
   const totalCarrito = items.reduce((sum, item) => sum + item.precio, 0);
 
-  // Obtiene la ubicación con alta precisión y autocompleta Calle y Número
+  // Obtiene la ubicación con alta precisión
   const obtenerUbicacion = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          // Se guardan las coordenadas con prefijos para identificar que se usó geolocalización
+          // Guardamos las coordenadas con prefijos para identificarlas
           setCalle(`Lat: ${lat.toFixed(6)}`);
           setNumero(`Lng: ${lng.toFixed(6)}`);
           setUsarUbicacionActual(true);
@@ -53,7 +53,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }
   };
 
+  // Genera el pedido y envía el mensaje al local (sin ubicación)
   const generarPedido = async () => {
+    // El mensaje para el local NO incluirá la ubicación (ni piso ni depto)
     let mensaje = "NUEVO PEDIDO!\n\n";
     if (nombreCliente.trim()) {
       mensaje += `Nombre del Cliente: ${nombreCliente}\n\n`;
@@ -174,10 +176,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         }
         case TipoProducto.Tipo5:
         case TipoProducto.Tipo6: {
-          const p = item.personalizacion as {
-            tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6;
-            observaciones: string;
-          };
+          const p = item.personalizacion as { tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6; observaciones: string };
           mensaje += `🍽 *${item.producto.nombre}* 🍽\n\n`;
           if (p.observaciones && p.observaciones.trim()) {
             mensaje += `Observaciones: ${p.observaciones}\n`;
@@ -190,28 +189,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       }
     });
 
+    // El mensaje enviado al local NO incluirá datos de ubicación
     if (metodoEntrega) {
       mensaje += `Método de entrega: ${metodoEntrega === "delivery" ? "Delivery" : "Retiro en el Local"}\n`;
-      if (metodoEntrega === "delivery") {
-        // Para el mensaje se arma la dirección completa, incluyendo piso y departamento (si se ingresan)
-        let mensajeDireccion = "";
-        let mapsQuery = "";
-        if (calle.startsWith("Lat:")) {
-          const lat = calle.replace("Lat:", "").trim();
-          const lng = numero.replace("Lng:", "").trim();
-          mensajeDireccion = `Ubicación: ${lat}, ${lng}`;
-          mapsQuery = `${lat},${lng}`;
-        } else {
-          mensajeDireccion = `Dirección: Calle ${calle}, Nº ${numero}`;
-          mapsQuery = `Calle ${calle}, Nº ${numero}`;
-        }
-        // Se adjunta piso y depto en el mensaje (pero no se usan en el enlace)
-        if (piso.trim()) mensajeDireccion += `, Piso: ${piso}`;
-        if (departamento.trim()) mensajeDireccion += `, Departamento: ${departamento}`;
-        mensaje += `${mensajeDireccion}\n`;
-        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`;
-        mensaje += `Ver ubicación en Maps: ${googleMapsUrl}\n`;
-      }
     }
     if (metodoPago) {
       mensaje += `Método de pago: ${metodoPago}\n`;
@@ -225,6 +205,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     const pedidoData = {
       nombreCliente,
       metodoEntrega,
+      // Se almacena la dirección completa en el JSON para uso posterior (delivery)
       direccion: metodoEntrega === "delivery" ? { calle, numero, piso, departamento } : null,
       metodoPago,
       items,
@@ -255,6 +236,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       return;
     }
 
+    // Se envía el mensaje al local SIN datos de ubicación
     const numeroTelefono = "+543832460459";
     const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, "_blank");
@@ -288,9 +270,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">
-                          {item.producto.nombre} (Promo)
-                        </h3>
+                        <h3 className="font-bold text-lg text-center">{item.producto.nombre} (Promo)</h3>
                         <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
                         <ul className="text-sm text-gray-700 mt-2 space-y-1">
                           <li>Mayonesa: {p.personalizacion.conMayonesa ? "Sí" : "No"}</li>
@@ -309,10 +289,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           )}
                         </ul>
                         <div className="mt-2 flex justify-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
+                          <button onClick={() => removeItem(item.id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">
                             Eliminar
                           </button>
                         </div>
@@ -327,9 +304,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">
-                          {item.producto.nombre} (Promo)
-                        </h3>
+                        <h3 className="font-bold text-lg text-center">{item.producto.nombre} (Promo)</h3>
                         <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
                         <div className="mt-2">
                           <div className="border border-gray-200 p-2 rounded mb-2">
@@ -366,10 +341,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           </div>
                         </div>
                         <div className="mt-2 flex justify-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-                          >
+                          <button onClick={() => removeItem(item.id)} className="bg-red-500 text-white px-3 py-1 rounded text-sm">
                             Eliminar
                           </button>
                         </div>
@@ -389,18 +361,14 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">
-                          {item.producto.nombre} (Hamburguesa Completa)
-                        </h3>
+                        <h3 className="font-bold text-lg text-center">{item.producto.nombre} (Hamburguesa Completa)</h3>
                         <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
                         <ul className="text-sm text-gray-700 mt-2 space-y-1">
                           <li>Mayonesa: {p.conMayonesa ? "Sí" : "No"}</li>
                           <li>Con queso: {p.conQueso ? "Sí" : "No"}</li>
-                          {p.conQueso && p.tipoQueso && (
-                            <li>Tipo de queso: {p.tipoQueso}</li>
-                          )}
+                          {p.conQueso && p.tipoQueso && (<li>Tipo de queso: {p.tipoQueso}</li>)}
                           {p.toppings && p.toppings.length > 0 && (
-                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                            <li>Toppings: {p.toppings.map((t) => t.nombre).join(", ")}</li>
                           )}
                           {p.aderezos && p.aderezos.length > 0 && (
                             <li>Aderezos: {p.aderezos.join(", ")}</li>
@@ -429,16 +397,14 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
-                        <h3 className="font-bold text-lg text-center">
-                          {item.producto.nombre} (Sandwich)
-                        </h3>
+                        <h3 className="font-bold text-lg text-center">{item.producto.nombre} (Sandwich)</h3>
                         <p className="text-sm font-semibold text-center">Precio: ${item.precio}</p>
                         <ul className="text-sm text-gray-700 mt-2 space-y-1">
                           {p.aderezos && p.aderezos.length > 0 && (
                             <li>Aderezos: {p.aderezos.join(", ")}</li>
                           )}
                           {p.toppings && p.toppings.length > 0 && (
-                            <li>Toppings: {p.toppings.map(t => t.nombre).join(", ")}</li>
+                            <li>Toppings: {p.toppings.map((t) => t.nombre).join(", ")}</li>
                           )}
                           {p.observaciones && p.observaciones.trim() && (
                             <li>Observaciones: {p.observaciones}</li>
@@ -454,10 +420,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   }
                   case TipoProducto.Tipo5:
                   case TipoProducto.Tipo6: {
-                    const p = item.personalizacion as {
-                      tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6;
-                      observaciones: string;
-                    };
+                    const p = item.personalizacion as { tipo: TipoProducto.Tipo5 | TipoProducto.Tipo6; observaciones: string };
                     return (
                       <div key={item.id} className="border border-gray-300 p-4 rounded-lg shadow-sm">
                         <h3 className="font-bold text-lg text-center">{item.producto.nombre}</h3>
@@ -549,8 +512,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                       ) : (
                         <>
                           <p className="mb-2">
-                            Ubicación actual obtenida: <span className="font-semibold">{calle}</span> y{" "}
-                            <span className="font-semibold">{numero}</span>.
+                            Ubicación actual obtenida: <span className="font-semibold">{calle}</span> y <span className="font-semibold">{numero}</span>.
                           </p>
                           <div className="flex gap-4 mb-2 items-center">
                             <span className="text-sm">¿Desea indicar piso o depto?</span>

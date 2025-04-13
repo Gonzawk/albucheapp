@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
 import { ImageProvider } from "@/app/context/ImageContext";
-import { DarkModeProvider } from "@/app/context/DarkModeContext";
 import { AuthProvider } from "@/app/context/AuthContext";
+import { DarkModeProvider } from "@/app/context/DarkModeContext";
 import ThemeProvider from "@/app/components/ThemeProvider";
 
 const geistSans = Geist({
@@ -30,11 +30,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <CartProvider>
           <ImageProvider>
-            <DarkModeProvider>
-              <ThemeProvider>
-                <AuthProvider>{children}</AuthProvider>
-              </ThemeProvider>
-            </DarkModeProvider>
+            {/* AuthProvider engloba a DarkModeProvider para que éste pueda acceder al token */}
+            <AuthProvider>
+              <DarkModeProvider>
+                <ThemeProvider>
+                  {children}
+                </ThemeProvider>
+              </DarkModeProvider>
+            </AuthProvider>
           </ImageProvider>
         </CartProvider>
       </body>

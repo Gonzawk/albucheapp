@@ -9,6 +9,13 @@ export default function NavBarAdmin() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logout } = useContext(AuthContext);
 
+  // Función para cerrar sesión y redireccionar al login
+  const handleLogout = () => {
+    logout();
+    // Redirige al usuario a la página de inicio de sesión
+    window.location.href = "/login"; // Ajusta la ruta según tu proyecto
+  };
+
   // Menú base para las rutas de Productos, Toppings, Aderezos y Extras
   const baseLinks = [
     { label: "Panel", href: "/admin-panel" },
@@ -78,7 +85,7 @@ export default function NavBarAdmin() {
             </Link>
           ))}
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
           >
             Cerrar Sesión
@@ -132,7 +139,7 @@ export default function NavBarAdmin() {
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                logout();
+                handleLogout();
               }}
               className="block text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors"
             >

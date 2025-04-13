@@ -1,8 +1,8 @@
-'use client';
+"use client";
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 interface AuthContextType {
-  token: string | null; // Se expone el token
+  token: string | null;
   tokenPayload: any | null;
   login: (token: string, keepSession?: boolean) => void;
   logout: () => void;
@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [tokenPayload, setTokenPayload] = useState<any | null>(null);
 
-  // Función para decodificar el JWT
   const parseJwt = (token: string): any | null => {
     try {
       const base64Url = token.split('.')[1];
@@ -41,7 +40,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Al montar, intentamos recuperar el token de localStorage o sessionStorage
   useEffect(() => {
     const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (storedToken) {
@@ -51,14 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Función para iniciar sesión: guarda el token, actualiza el estado y crea la cookie necesaria
   const login = (token: string, keepSession: boolean = false) => {
     if (keepSession) {
       localStorage.setItem('token', token);
     } else {
       sessionStorage.setItem('token', token);
     }
-    // Crear cookie "token" para que el middleware (lado servidor) pueda acceder
     document.cookie = `token=${token}; path=/; samesite=lax;`;
     setToken(token);
     const payload = parseJwt(token);
@@ -66,7 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('Login realizado con token:', token);
   };
 
-  // Función para cerrar sesión: elimina token de ambos almacenamientos, la cookie y actualiza el estado
   const logout = () => {
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');

@@ -156,7 +156,7 @@ export default function AdminPanel() {
             </Link>
           </div>
           {/* Card 5: Administracion Deliverys */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+          {/* <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
               Administracion de Repartidores
             </h3>
@@ -169,7 +169,7 @@ export default function AdminPanel() {
             >
               Ir a Repartidores
             </Link>
-          </div>
+          </div> */}
           {/* Card 6: Información General */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">

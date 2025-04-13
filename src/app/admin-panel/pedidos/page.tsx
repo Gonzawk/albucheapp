@@ -20,6 +20,14 @@ interface Asignacion {
   fechaAsignacion: string;
 }
 
+interface CajaRecord {
+  id: number;
+  pedidoID: number;
+  metodoPago: string;
+  monto: number;
+  fechaRegistro: string;
+}
+
 export default function PedidosPanel() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,6 +46,9 @@ export default function PedidosPanel() {
   const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState<DeliveryPerson | null>(null);
   const [availableDeliveryPersons, setAvailableDeliveryPersons] = useState<DeliveryPerson[]>([]);
   const [assignments, setAssignments] = useState<Asignacion[]>([]);
+
+  // Estado para los registros de la caja (declarado solo una vez)
+  const [cajaRecords, setCajaRecords] = useState<CajaRecord[]>([]);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -69,6 +80,20 @@ export default function PedidosPanel() {
     }
   };
 
+  // Función para traer los registros de la caja
+  const fetchCajaRecords = async () => {
+    try {
+      const res = await fetch(`${apiUrl}/api/Caja`);
+      if (!res.ok) {
+        throw new Error("Error al obtener registros de caja");
+      }
+      const data = await res.json();
+      setCajaRecords(data);
+    } catch (err: any) {
+      console.error(err.message || "Error al obtener registros de caja");
+    }
+  };
+
   // Obtener pedidos y filtrar según estado
   const fetchPedidos = async () => {
     setLoading(true);
@@ -79,8 +104,7 @@ export default function PedidosPanel() {
         throw new Error("Error al obtener los pedidos");
       }
       const data: Pedido[] = await res.json();
-      const filtered =
-        filterEstado === "Todos" ? data : data.filter((pedido) => pedido.estado === filterEstado);
+      const filtered = filterEstado === "Todos" ? data : data.filter((pedido) => pedido.estado === filterEstado);
       setPedidos(filtered);
     } catch (err: any) {
       setError(err.message || "Error al obtener los pedidos");
@@ -96,6 +120,7 @@ export default function PedidosPanel() {
   useEffect(() => {
     fetchDeliveryPersons();
     fetchAssignments();
+    fetchCajaRecords();
   }, [apiUrl]);
 
   // Función para confirmar pedido
@@ -142,7 +167,7 @@ export default function PedidosPanel() {
     }
   };
 
-  // Función para imprimir la comanda (ahora eliminada de las acciones en la tabla)
+  // Función para imprimir la comanda
   const imprimirComanda = async (pedido: Pedido) => {
     try {
       const ReactDOMServer = await import("react-dom/server");
@@ -180,6 +205,8 @@ export default function PedidosPanel() {
     setSelectedPedido(pedido);
     try {
       const details = JSON.parse(pedido.orden);
+      // Agregamos el estado en los detalles para usarlo en el modal
+      details.estado = pedido.estado;
       setOrderDetails(details);
     } catch (err) {
       console.error("Error al parsear la orden:", err);
@@ -215,7 +242,6 @@ export default function PedidosPanel() {
         throw new Error("Error al asignar repartidor");
       }
       alert("Asignación creada correctamente.");
-      // Vuelve a refrescar las asignaciones
       fetchAssignments();
     } catch (error: any) {
       alert(error.message || "Error al asignar repartidor");
@@ -226,7 +252,7 @@ export default function PedidosPanel() {
     setSelectedDeliveryPerson(null);
   };
 
-  // Función para enviar la información al repartidor (botón "Enviar a delivery")
+  // Función para enviar la información al repartidor
   const sendToDelivery = (pedido: Pedido, orderData: any) => {
     const assignment = assignments.find((a) => a.pedidoID === pedido.id);
     if (!assignment) {
@@ -242,7 +268,6 @@ export default function PedidosPanel() {
     }
     const direccion = orderData.direccion;
     let query = "";
-    // Si la dirección proviene de geolocalización, extrae las coordenadas numéricas
     if (direccion?.calle && direccion.calle.startsWith("Lat:")) {
       const lat = direccion.calle.replace("Lat:", "").trim();
       const lng = direccion.numero.replace("Lng:", "").trim();
@@ -250,7 +275,6 @@ export default function PedidosPanel() {
       if (direccion.piso?.trim()) query += `, Piso: ${direccion.piso}`;
       if (direccion.departamento?.trim()) query += `, Dept: ${direccion.departamento}`;
     } else {
-      // Dirección manual
       query = `Calle ${direccion?.calle}, Nº ${direccion?.numero}`;
       if (direccion?.piso?.trim()) query += `, Piso: ${direccion.piso}`;
       if (direccion?.departamento?.trim()) query += `, Departamento: ${direccion.departamento}`;
@@ -264,6 +288,35 @@ export default function PedidosPanel() {
     mensaje += `Ver ubicación en Maps: ${googleMapsUrl}`;
     const whatsappLink = `https://api.whatsapp.com/send?phone=${assignedRepartidor.celular}&text=${encodeURIComponent(mensaje)}`;
     window.open(whatsappLink, "_blank");
+  };
+
+  // Función para agregar el pedido a caja
+  const agregarACaja = async (pedido: Pedido) => {
+    const yaAgregado = cajaRecords.some((record) => record.pedidoID === pedido.id);
+    if (yaAgregado) {
+      alert("Este pedido ya fue agregado a la caja.");
+      return;
+    }
+    try {
+      const orderData = JSON.parse(pedido.orden);
+      const payload = {
+        PedidoID: pedido.id,
+        MetodoPago: orderData.metodoPago,
+        Monto: orderData.total,
+      };
+      const res = await fetch(`${apiUrl}/api/Caja`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        throw new Error("Error al agregar el pedido a la caja");
+      }
+      alert("Pedido agregado a la caja correctamente.");
+      fetchCajaRecords();
+    } catch (err: any) {
+      alert(err.message || "Error al agregar el pedido a la caja");
+    }
   };
 
   return (
@@ -338,8 +391,8 @@ export default function PedidosPanel() {
                     console.error("Error al parsear la orden:", err);
                   }
                   const isDelivery = orderData.metodoEntrega === "delivery";
-                  // Verifica si ya existe asignación para el pedido
                   const assigned = assignments.find((a) => a.pedidoID === pedido.id);
+                  const yaAgregadoCaja = cajaRecords.some((record) => record.pedidoID === pedido.id);
                   return (
                     <tr key={pedido.id} className="text-center">
                       <td className="py-2 px-4 border-b">{pedido.id}</td>
@@ -383,13 +436,9 @@ export default function PedidosPanel() {
                             </button>
                           </>
                         )}
-                        {pedido.estado === "Completado" && (
-                          // Se elimina el botón "Imprimir Comanda"
-                          <></>
-                        )}
+                        {pedido.estado === "Completado" && <></>}
                         {isDelivery &&
                           (assigned ? (
-                            // Si ya está asignado, mostrar botón para "Enviar a delivery"
                             <button
                               onClick={() => sendToDelivery(pedido, orderData)}
                               className="bg-indigo-500 text-white px-2 py-1 rounded text-xs md:text-sm hover:bg-indigo-600 transition-colors"
@@ -397,7 +446,6 @@ export default function PedidosPanel() {
                               Enviar a delivery
                             </button>
                           ) : (
-                            // Si aún no está asignado, mostrar botón para asignar
                             <button
                               onClick={() => openDeliveryModal(pedido, orderData)}
                               className="bg-teal-500 text-white px-2 py-1 rounded text-xs md:text-sm hover:bg-teal-600 transition-colors"
@@ -405,6 +453,23 @@ export default function PedidosPanel() {
                               Asignar Delivery
                             </button>
                           ))}
+                        {(pedido.estado === "Confirmado" || pedido.estado === "Completado") && (
+                          yaAgregadoCaja ? (
+                            <button
+                              disabled
+                              className="bg-gray-500 text-white px-2 py-1 rounded text-xs md:text-sm"
+                            >
+                              Agregado a Caja
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => agregarACaja(pedido)}
+                              className="bg-pink-500 text-white px-2 py-1 rounded text-xs md:text-sm hover:bg-pink-600 transition-colors"
+                            >
+                              Agregar a Caja
+                            </button>
+                          )
+                        )}
                       </td>
                     </tr>
                   );
@@ -427,6 +492,23 @@ export default function PedidosPanel() {
                 Detalles del Pedido #{selectedPedido.id}
               </h2>
               <OrderDetails data={orderDetails} />
+              {(orderDetails.estado === "Confirmado" || orderDetails.estado === "Completado") && (
+                cajaRecords.some(record => record.pedidoID === selectedPedido.id) ? (
+                  <button
+                    disabled
+                    className="bg-gray-500 text-white px-4 py-2 rounded my-4"
+                  >
+                    Agregado a Caja
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => agregarACaja(selectedPedido)}
+                    className="bg-pink-500 text-white px-4 py-2 rounded my-4 hover:bg-pink-600 transition-colors"
+                  >
+                    Agregar a Caja
+                  </button>
+                )
+              )}
               <button
                 onClick={() => {
                   setSelectedPedido(null);
@@ -448,7 +530,7 @@ export default function PedidosPanel() {
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
           >
-            <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-11/12 max-w-md">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-11/12 max-w-md text-gray-900 dark:text-gray-100">
               <h2 className="text-2xl font-bold mb-4">
                 Asignar Delivery al Pedido #{selectedDeliveryPedido.id}
               </h2>
@@ -461,7 +543,7 @@ export default function PedidosPanel() {
                     const person = availableDeliveryPersons.find((p) => p.id === personId);
                     setSelectedDeliveryPerson(person || null);
                   }}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">-- Seleccionar --</option>
                   {availableDeliveryPersons.map((person) => (

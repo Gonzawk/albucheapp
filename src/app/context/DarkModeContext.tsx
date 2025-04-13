@@ -4,50 +4,34 @@ import { AuthContext } from "@/app/context/AuthContext";
 
 interface DarkModeContextType {
   darkMode: boolean;
-  toggleDarkMode: () => Promise<void>;
+  toggleDarkMode: () => void;
   setDarkMode: (value: boolean) => void;
 }
 
 export const DarkModeContext = createContext<DarkModeContextType>({
   darkMode: false,
-  toggleDarkMode: async () => {},
+  toggleDarkMode: () => {},
   setDarkMode: () => {}
 });
 
 export const useDarkMode = () => useContext(DarkModeContext);
 
-// Función para decodificar el JWT
-const parseJwt = (token: string): any | null => {
-  try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Error decodificando el token:", error);
-    return null;
-  }
-};
-
 export const DarkModeProvider = ({ children }: { children: ReactNode }) => {
-  const { token } = useContext(AuthContext);
+  const { token, tokenPayload } = useContext(AuthContext);
   const [darkMode, setDarkModeState] = useState<boolean>(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+  // Extraer el id del usuario desde la claim necesaria y convertirlo a número
+  const userIdClaim = tokenPayload?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+  const userId = userIdClaim ? Number(userIdClaim) : null;
+
   useEffect(() => {
     if (!token) {
-      console.error("No se encontró token; se omite la consulta de configuración.");
+      // No mostrar error en el primer render, el token podría no estar aún disponible.
       return;
     }
-    const decoded = parseJwt(token);
-    const userId = decoded ? decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] : null;
     if (!userId) {
-      console.error("No se encontró el ID de usuario en el token.");
+      console.error("No se pudo obtener el id del usuario.");
       return;
     }
     const fetchUserSettings = async () => {
@@ -74,43 +58,14 @@ export const DarkModeProvider = ({ children }: { children: ReactNode }) => {
         setDarkModeState(false);
       }
     };
-
     fetchUserSettings();
-  }, [token, apiUrl]);
+  }, [token, apiUrl, userId]);
 
-  const toggleDarkMode = async () => {
+  // toggleDarkMode solo actualiza el estado local, sin hacer solicitud PUT.
+  const toggleDarkMode = () => {
     const newValue = !darkMode;
     setDarkModeState(newValue);
-    if (!token) {
-      console.error("No se encontró token; no se puede actualizar la configuración.");
-      return;
-    }
-    const decoded = parseJwt(token);
-    const userId = decoded ? decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] : null;
-    if (!userId) {
-      console.error("No se encontró el ID de usuario en el token.");
-      return;
-    }
-    const endpoint = `${apiUrl}/api/UserSettings/${userId}`;
-    console.log("Enviando solicitud PUT a:", endpoint);
-    console.log("Payload enviado:", { isDarkMode: newValue });
-    try {
-      const res = await fetch(endpoint, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ isDarkMode: newValue })
-      });
-      console.log("Respuesta del PUT, estado:", res.status);
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Error al actualizar la configuración del usuario. Estado:", res.status, errorText);
-      }
-    } catch (error) {
-      console.error("Error updating user settings", error);
-    }
+    // La actualización en el servidor se realizará desde la página correspondiente.
   };
 
   return (
