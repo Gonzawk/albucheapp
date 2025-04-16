@@ -20,14 +20,6 @@ interface Asignacion {
   fechaAsignacion: string;
 }
 
-interface CajaRecord {
-  id: number;
-  pedidoID: number;
-  metodoPago: string;
-  monto: number;
-  fechaRegistro: string;
-}
-
 export default function PedidosPanel() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -47,8 +39,8 @@ export default function PedidosPanel() {
   const [availableDeliveryPersons, setAvailableDeliveryPersons] = useState<DeliveryPerson[]>([]);
   const [assignments, setAssignments] = useState<Asignacion[]>([]);
 
-  // Estado para los registros de la caja
-  const [cajaRecords, setCajaRecords] = useState<CajaRecord[]>([]);
+  // Estado para los registros de la caja (ahora se almacenan como arreglo de PedidoID)
+  const [cajaRecords, setCajaRecords] = useState<number[]>([]);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -76,19 +68,19 @@ export default function PedidosPanel() {
     }
   };
 
-  // Función para traer los registros de la caja
+  // Función para traer los registros de la caja (usando el SP que devuelve solo los PedidoID)
   const fetchCajaRecords = async () => {
     try {
-      const res = await fetch(`${apiUrl}/api/Caja`);
+      const res = await fetch(`${apiUrl}/api/Caja/ids`);
       if (!res.ok) throw new Error("Error al obtener registros de caja");
-      const data = await res.json();
+      const data: number[] = await res.json(); // Se espera un arreglo de numbers
       setCajaRecords(data);
     } catch (err: any) {
       console.error(err.message || "Error al obtener registros de caja");
     }
   };
 
-  // Obtener pedidos y filtrar según estado
+  // Obtener pedidos y filtrarlos por estado
   const fetchPedidos = async () => {
     setLoading(true);
     setError("");
@@ -193,7 +185,6 @@ export default function PedidosPanel() {
     setSelectedPedido(pedido);
     try {
       const details = JSON.parse(pedido.orden);
-      // Agregamos el estado en los detalles para usarlo en el modal
       details.estado = pedido.estado;
       setOrderDetails(details);
     } catch (err) {
@@ -208,7 +199,7 @@ export default function PedidosPanel() {
     setShowDeliveryModal(true);
   };
 
-  // Función para asignar delivery
+  // Función para asignar delivery mediante POST
   const assignDelivery = async () => {
     if (!selectedDeliveryPerson || !selectedDeliveryPedido) {
       alert("Seleccione un repartidor");
@@ -273,8 +264,8 @@ export default function PedidosPanel() {
 
   // Función para agregar el pedido a caja
   const agregarACaja = async (pedido: Pedido) => {
-    const yaAgregado = cajaRecords.some((record) => record.pedidoID === pedido.id);
-    if (yaAgregado) {
+    // Verifica si el pedido ya fue agregado usando el arreglo de IDs
+    if (cajaRecords.includes(pedido.id)) {
       alert("Este pedido ya fue agregado a la caja.");
       return;
     }
@@ -290,9 +281,7 @@ export default function PedidosPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        throw new Error("Error al agregar el pedido a la caja");
-      }
+      if (!res.ok) throw new Error("Error al agregar el pedido a la caja");
       alert("Pedido agregado a la caja correctamente.");
       fetchCajaRecords();
     } catch (err: any) {
@@ -373,14 +362,18 @@ export default function PedidosPanel() {
                   }
                   const isDelivery = orderData.metodoEntrega === "delivery";
                   const assigned = assignments.find((a) => a.pedidoID === pedido.id);
-                  const yaAgregadoCaja = cajaRecords.some((record) => record.pedidoID === pedido.id);
+                  const yaAgregadoCaja = cajaRecords.includes(pedido.id);
                   return (
                     <tr key={pedido.id} className="text-center">
                       <td className="py-2 px-4 border-b">{pedido.id}</td>
                       <td className="py-2 px-4 border-b">{pedido.estado}</td>
-                      <td className="py-2 px-4 border-b">{new Date(pedido.fechaCreacion).toLocaleString()}</td>
                       <td className="py-2 px-4 border-b">
-                        {pedido.fechaFinalizacion ? new Date(pedido.fechaFinalizacion).toLocaleString() : "-"}
+                        {new Date(pedido.fechaCreacion).toLocaleString()}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {pedido.fechaFinalizacion
+                          ? new Date(pedido.fechaFinalizacion).toLocaleString()
+                          : "-"}
                       </td>
                       <td className="py-2 px-4 border-b space-x-2">
                         <button
@@ -470,7 +463,7 @@ export default function PedidosPanel() {
               </h2>
               <OrderDetails data={orderDetails} />
               {(orderDetails.estado === "Confirmado" || orderDetails.estado === "Completado") && (
-                cajaRecords.some(record => record.pedidoID === selectedPedido.id) ? (
+                cajaRecords.includes(selectedPedido.id) ? (
                   <button
                     disabled
                     className="bg-gray-500 text-white px-4 py-2 rounded my-4"

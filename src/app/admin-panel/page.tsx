@@ -140,6 +140,21 @@ export default function AdminPanel() {
               Ir a Pedidos
             </Link>
           </div>
+          {/* Card 4: Administracion de Caja */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
+              Caja
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Administracion, control y resumen de caja.
+            </p>
+            <Link
+              href="/admin-panel/caja"
+              className="block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded transition-colors"
+            >
+              Ir a Caja
+            </Link>
+          </div>
           {/* Card 4: Configuración General */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2">
