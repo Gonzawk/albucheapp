@@ -68,9 +68,62 @@ export default function ConfiguracionPanel() {
         <main className="flex-grow container mx-auto">
           <h2 className="text-2xl font-bold mb-6">Opciones de Configuración</h2>
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {/* Card 1: Modo Oscuro */}
+            
+            {/* Card 1: Gestión de Usuarios */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-bold mb-2">Modo Oscuro</h3>
+              <h3 className="text-xl font-bold mb-2">Usuarios</h3>
+              <p className="mb-4">
+                Administra y configura los usuarios de la aplicación.
+              </p>
+              <Link
+                href="/admin-panel/usuarios"
+                className="block w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded transition-colors"
+              >
+                Administrar Usuarios
+              </Link>
+            </div>
+            {/* Card 2: Horarios */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-bold mb-2">Horarios</h3>
+              <p className="mb-4">
+                Administra el horario de apertura y cierre del menú.
+              </p>
+              <Link
+                href="/admin-panel/horarios"
+                className="block w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 rounded transition-colors"
+              >
+                Configurar Horarios
+              </Link>
+            </div>
+            {/* Card 3: Repartidores */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-bold mb-2">Repartidores</h3>
+              <p className="mb-4">
+                Administra los repartidores y configura sus datos.
+              </p>
+              <Link
+                href="/admin-panel/deliverys"
+                className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded transition-colors"
+              >
+                 Administrar Repartidores
+              </Link>
+            </div>
+             {/* Card 4: Mesas */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-bold mb-2">Mesas</h3>
+              <p className="mb-4">
+                Administra las mesas dentro del local y su ubicacion. 
+              </p>
+              <Link
+                href="/admin-panel/mesas"
+                className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded transition-colors"
+              >
+                Administrar Mesas
+              </Link>
+            </div>
+            {/* Card 5: Modo Oscuro */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-xl font-bold mb-2">Tema</h3>
               <p className="mb-4">
                 Activa o desactiva el modo oscuro en la aplicación y guarda el cambio en la base de datos.
               </p>
@@ -90,45 +143,6 @@ export default function ConfiguracionPanel() {
                 </label>
                 <span className="ml-3 text-gray-700 dark:text-gray-200">Oscuro</span>
               </div>
-            </div>
-            {/* Card 2: Gestión de Usuarios */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-bold mb-2">Gestión de Usuarios</h3>
-              <p className="mb-4">
-                Administra y configura los usuarios de la aplicación.
-              </p>
-              <Link
-                href="/admin-panel/usuarios"
-                className="block w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded transition-colors"
-              >
-                Administrar Usuarios
-              </Link>
-            </div>
-            {/* Card 3: Horarios */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-bold mb-2">Horarios</h3>
-              <p className="mb-4">
-                Gestiona el horario de apertura y cierre del menú.
-              </p>
-              <Link
-                href="/admin-panel/horarios"
-                className="block w-full bg-purple-500 hover:bg-purple-600 text-white text-center py-2 rounded transition-colors"
-              >
-                Configurar Horarios
-              </Link>
-            </div>
-            {/* Card 4: Repartidores */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-xl font-bold mb-2">Repartidores</h3>
-              <p className="mb-4">
-                Gestiona los repartidores y configura sus datos.
-              </p>
-              <Link
-                href="/admin-panel/deliverys"
-                className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded transition-colors"
-              >
-                Configurar Repartidores
-              </Link>
             </div>
           </div>
         </main>

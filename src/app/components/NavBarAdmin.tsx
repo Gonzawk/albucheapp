@@ -27,10 +27,18 @@ export default function NavBarAdmin() {
 
   let links: { label: string; href: string }[] = [];
 
+  // Si estamos en rutas: /admin-panel/usuarios, /admin-panel/horarios o /admin-panel/deliverys,
+  // mostramos solo el enlace "Configuración"
   if (
+    ["/admin-panel/usuarios", "/admin-panel/horarios", "/admin-panel/deliverys"].includes(pathname)
+  ) {
+    links = [{ label: "Configuración", href: "/admin-panel/configuracion" }];
+  } else if (pathname === "/admin-panel/configuracion") {
+    // En la ruta de Configuración se muestra solo el botón "Panel"
+    links = [{ label: "Panel", href: "/admin-panel" }];
+  } else if (
     pathname.startsWith("/admin-panel/pedidos") ||
-    pathname.startsWith("/admin-panel/categorias") ||
-    pathname.startsWith("/admin-panel/configuracion")
+    pathname.startsWith("/admin-panel/categorias")
   ) {
     // En estas rutas se muestra solo la opción de Panel
     links = [{ label: "Panel", href: "/admin-panel" }];
@@ -44,7 +52,7 @@ export default function NavBarAdmin() {
     links = baseLinks.filter(
       (link) =>
         link.href === "/admin-panel" ||
-        // Compara solo la parte base de la ruta (por ejemplo, si estamos en /admin-panel/productos se elimina ese enlace)
+        // Compara solo la parte base de la ruta; si estamos en /admin-panel/productos se elimina ese enlace
         !pathname.startsWith(link.href)
     );
   } else if (pathname === "/admin-panel") {

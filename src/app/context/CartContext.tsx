@@ -1,21 +1,20 @@
+// app/context/CartContext.tsx
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
 import { TipoProducto } from "../config/personalizacionConfig";
-import { Topping } from "../../../types/Topping"; // Importa la interfaz Topping
+import { Topping } from "../../../types/Topping";
 
-// Definimos el tipo Personalizacion basado en el esquema de cada TipoProducto
+// --- Tus tipos existentes ---
 export type Personalizacion =
   | {
       tipo: TipoProducto.Tipo1;
-      // Promo Tipo 1: permite personalización, aderezos, toppings y observaciones.
-      personalizacion?: any; // se puede ampliar si se requiere más detalle
+      personalizacion?: any;
       aderezos?: string[];
-      toppings: Topping[]; // Actualizado a Topping[]
+      toppings: Topping[];
       observaciones?: string;
     }
   | {
       tipo: TipoProducto.Tipo2;
-      // Tipo 2: 2 productos sin toppings, cada uno con su propia personalización
       subproducto1: {
         conMayonesa: boolean;
         conQueso: boolean;
@@ -33,64 +32,71 @@ export type Personalizacion =
     }
   | {
       tipo: TipoProducto.Tipo3;
-      // Hamburguesas: personalización completa
       conMayonesa: boolean;
       conQueso: boolean;
       tipoQueso: string;
-      toppings: Topping[]; // Actualizado a Topping[]
+      toppings: Topping[];
       aderezos: string[];
       extras: string[];
       observaciones?: string;
     }
   | {
       tipo: TipoProducto.Tipo4;
-      // Sandwiches: aderezos, toppings y observaciones
       aderezos: string[];
-      toppings: Topping[]; // Actualizado a Topping[]
+      toppings: Topping[];
       observaciones: string;
     }
   | {
       tipo: TipoProducto.Tipo5;
-      // Para Acompañar: solo observaciones
       observaciones: string;
     }
   | {
       tipo: TipoProducto.Tipo6;
-      // Minutas: solo observaciones
       observaciones: string;
     }
   | {
-      // Caso adicional: si se requiere el tipo "acompanar" fuera del enum
       tipo: "acompanar";
       opcion: string;
       dips: string[];
       observaciones: string;
     }
   | {
-      // Caso adicional: si se requiere el tipo "sandwich" de forma diferenciada
       tipo: "sandwich";
       aderezos: string[];
-      toppings: Topping[]; // Actualizado a Topping[]
+      toppings: Topping[];
       observaciones: string;
     };
 
 export interface CartItem {
   id: string;
-  producto: any; // Puedes tipificarlo según tu modelo
+  producto: any;
   personalizacion: Personalizacion;
   precio: number;
 }
 
+// --- Extensión para llevar mesaId y mesaNombre ---
 interface CartContextType {
+  mesaId: string;
+  mesaNombre: string;
   items: CartItem[];
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
 }
 
+// Contexto
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+// Provider recibe ahora mesaId y mesaNombre
+export const CartProvider = ({
+  children,
+  mesaId,
+  mesaNombre,
+}: {
+  children: ReactNode;
+  mesaId: string;
+  mesaNombre: string;
+}) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const addItem = (item: CartItem) => {
@@ -106,16 +112,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
+    <CartContext.Provider
+      value={{ mesaId, mesaNombre, items, addItem, removeItem, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
+// Hook para usarlo en tus componentes
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
+    throw new Error("useCart debe usarse dentro de un CartProvider");
   }
   return context;
 };
