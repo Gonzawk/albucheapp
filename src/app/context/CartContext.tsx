@@ -74,10 +74,10 @@ export interface CartItem {
   precio: number;
 }
 
-// --- Extensión para llevar mesaId y mesaNombre ---
+// --- Extensión para llevar mesaId y mesaNombre opcionales ---
 interface CartContextType {
-  mesaId: string;
-  mesaNombre: string;
+  mesaId?: string;
+  mesaNombre?: string;
   items: CartItem[];
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
@@ -87,15 +87,15 @@ interface CartContextType {
 // Contexto
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Provider recibe ahora mesaId y mesaNombre
+// Provider recibe ahora mesaId y mesaNombre como opcionales
 export const CartProvider = ({
   children,
   mesaId,
   mesaNombre,
 }: {
   children: ReactNode;
-  mesaId: string;
-  mesaNombre: string;
+  mesaId?: string;
+  mesaNombre?: string;
 }) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
